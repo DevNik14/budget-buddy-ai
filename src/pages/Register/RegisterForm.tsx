@@ -1,9 +1,12 @@
+import { useState } from "react";
+
+import { Link } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
 import { FaGoogle } from "react-icons/fa6";
 
-import styles from "./LoginForm.module.css";
+import styles from "./RegisterForm.module.css";
 
 export default function RegisterForm(): React.JSX.Element {
   const [message, setMessage] = useState("");
