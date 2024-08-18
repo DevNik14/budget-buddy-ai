@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { GoolgeSvg } from "@/assets/google";
 
-export default function RegisterForm(): React.JSX.Element {
+export default function LoginForm(): React.JSX.Element {
   const [message, setMessage] = useState("");
 
   const googleLoginClickHandler = () => {
