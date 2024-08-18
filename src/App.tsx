@@ -1,9 +1,13 @@
 import { app, auth, createUserWithEmailAndPassword } from "./config/firebase";
-import RegisterFormPage from "./pages/Login";
+import { Routes, Route } from "react-router-dom";
+import RegisterFormPage from "./pages/Register";
 
 function App() {
   return (
     <>
+      <Routes>
+        <Route path="/login" element={<h2>Login Page</h2>} />
+      </Routes>
       <RegisterFormPage />
       <footer className="absolute bottom-0 text-center w-full">
         Built with &#x2764; by{" "}
