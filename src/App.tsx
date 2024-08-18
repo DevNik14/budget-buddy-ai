@@ -6,9 +6,9 @@ function App() {
     <>
       <RegisterFormPage />
       <footer className="absolute bottom-0 text-center w-full">
-        Built with &hearts; by{" "}
+        Built with &#x2764; by{" "}
         <a href="https://github.com/DevNik14" target="_blank">
-          Nikolay Kyurchiyski
+          <strong>Nikolay Kyurchiyski</strong>
         </a>
       </footer>
     </>
