@@ -1,3 +1,6 @@
+import { initializeApp } from "firebase/app";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+// UI
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -6,6 +9,18 @@ import { Link } from "react-router-dom";
 
 export default function RegisterForm(): React.JSX.Element {
   const [message, setMessage] = useState("");
+
+  const firebaseConfig = {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  };
+
+  const app = initializeApp(firebaseConfig);
 
   const googleLoginClickHandler = () => {
     setMessage("Still in development");
@@ -19,7 +34,7 @@ export default function RegisterForm(): React.JSX.Element {
     <>
       <main>
         <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="bg-[url('@/assets/auth-bg.jpg')] bg-no-repeat bg-cover bg-center h-full w-full"></div>
+          <div className="bg-[#0047AB]"></div>
           <div className="flex flex-col justify-center items-center h-screen w-full">
             <div className="flex flex-col w-4/6 text-center gap-y-3">
               <label htmlFor="email" className="text-left">
