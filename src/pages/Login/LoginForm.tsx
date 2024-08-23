@@ -19,7 +19,7 @@ export default function LoginForm(): React.JSX.Element {
     <>
       <main>
         <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="bg-[url('@/assets/auth-bg.jpg')] bg-no-repeat bg-cover bg-center h-full w-full"></div>
+          <div className="bg-[#0047AB]"></div>
           <div className="flex flex-col justify-center items-center h-screen w-full">
             <div className="flex flex-col w-4/6 text-center gap-y-3">
               <label htmlFor="email" className="text-left">
