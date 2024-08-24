@@ -1,26 +1,40 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-// UI
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { GoolgeSvg } from "@/assets/google";
 import { Link } from "react-router-dom";
 
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+};
+
+const app = initializeApp(firebaseConfig);
+
 export default function RegisterForm(): React.JSX.Element {
   const [message, setMessage] = useState("");
+  const [userCredentials, setUserCredentials] = useState({
+    email: "",
+    password: "",
+  });
 
-  const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID,
-    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  const userCredentialsHandler = (e: FormEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement;
+    setUserCredentials((oldCredentials) => {
+      return {
+        ...oldCredentials,
+        [target.name]: target.value,
+      };
+    });
   };
-
-  const app = initializeApp(firebaseConfig);
 
   const googleLoginClickHandler = () => {
     setMessage("Still in development");
@@ -43,8 +57,11 @@ export default function RegisterForm(): React.JSX.Element {
               <Input
                 id="email"
                 type="email"
+                name="email"
                 placeholder="name@example.com"
                 className="rounded"
+                value={userCredentials.email}
+                onChange={userCredentialsHandler}
               />
               <label htmlFor="password" className="text-left">
                 Password
@@ -52,26 +69,11 @@ export default function RegisterForm(): React.JSX.Element {
               <Input
                 id="password"
                 type="password"
+                name="password"
                 placeholder="Password"
                 className="rounded"
-              />
-              <label htmlFor="firstName" className="text-left">
-                First Name
-              </label>
-              <Input
-                id="firstName"
-                type="text"
-                placeholder="First Name"
-                className="rounded"
-              />
-              <label htmlFor="lastName" className="text-left">
-                last Name
-              </label>
-              <Input
-                id="lastName"
-                type="text"
-                placeholder="Last Name"
-                className="rounded"
+                value={userCredentials.password}
+                onChange={userCredentialsHandler}
               />
               <Button
                 className="rounded border-solid border-black"
