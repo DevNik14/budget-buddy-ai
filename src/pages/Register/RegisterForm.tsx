@@ -28,7 +28,7 @@ type State = {
     criteria: boolean;
     requirementMessage: string;
   };
-  doesPasswordIncludesCapitalLetter: {
+  doesPasswordIncludesUpperCaseLetter: {
     criteria: boolean;
     requirementMessage: string;
   };
@@ -99,7 +99,7 @@ export default function RegisterForm(): React.JSX.Element {
       requirementMessage:
         "Password needs to be between 6 and 30 characters long",
     },
-    doesPasswordIncludesCapitalLetter: {
+    doesPasswordIncludesUpperCaseLetter: {
       criteria: false,
       requirementMessage: "At least 1 capital letter",
     },
@@ -113,118 +113,87 @@ export default function RegisterForm(): React.JSX.Element {
     },
   });
 
+  const validateEmailHandler = (state: State, value: boolean) => {
+    setUserInputRequirements((oldRequirements) => {
+      return {
+        ...oldRequirements,
+        doesEmailPassChecks: {
+          ...oldRequirements.doesEmailPassChecks,
+          criteria: value,
+        },
+      };
+    });
+  };
+
+  const validatePasswordIncludesCapitalLetterHandler = (
+    state: State,
+    value: string,
+    letterCase: string
+  ) => {
+    const regex = letterCase === "Upper" ? /.*[A-Z].*/ : /.*[a-z].*/;
+    const foundCapitalLetter = regex.test(value);
+    const key =
+      `doesPasswordIncludes${letterCase}CaseLetter` as keyof typeof userInputRequirements;
+    setUserInputRequirements((oldRequirements) => {
+      return {
+        ...oldRequirements,
+        [key]: {
+          ...oldRequirements[key],
+          criteria: foundCapitalLetter,
+        },
+      };
+    });
+  };
+
+  const validatePasswordLengthHandler = (state: State, value: string) => {
+    const inRange = value.length > 5 && value.length < 31;
+    setUserInputRequirements((oldRequirements) => {
+      return {
+        ...oldRequirements,
+        passwordLength: {
+          ...oldRequirements.passwordLength,
+          criteria: inRange,
+        },
+      };
+    });
+  };
+
+  const validatePasswordIncludesDigit = (state: State, value: string) => {
+    const hasDigit = /.*[0-9].*/.test(value);
+    setUserInputRequirements((oldRequirements) => {
+      return {
+        ...oldRequirements,
+        doesPasswordIncludesADigit: {
+          ...oldRequirements.doesPasswordIncludesADigit,
+          criteria: hasDigit,
+        },
+      };
+    });
+  };
+
   const userCredentialsHandler = (e: FormEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement;
     if (target.name === "email") {
-      if (target.value.match(emailRegex)) {
-        setUserInputRequirements((oldRequirements) => {
-          return {
-            ...oldRequirements,
-            doesEmailPassChecks: {
-              ...oldRequirements.doesEmailPassChecks,
-              criteria: true,
-            },
-          };
-        });
-      } else {
-        setUserInputRequirements((oldRequirements) => {
-          return {
-            ...oldRequirements,
-            doesEmailPassChecks: {
-              ...oldRequirements.doesEmailPassChecks,
-              criteria: false,
-            },
-          };
-        });
-      }
+      validateEmailHandler(
+        userInputRequirements,
+        emailRegex.test(target.value)
+      );
     } else {
-      if (target.value.length < 6 || target.value.length > 30) {
-        setUserInputRequirements((oldRequirements) => {
-          return {
-            ...oldRequirements,
-            passwordLength: {
-              ...oldRequirements.passwordLength,
-              criteria: false,
-            },
-          };
-        });
-      } else {
-        setUserInputRequirements((oldRequirements) => {
-          return {
-            ...oldRequirements,
-            passwordLength: {
-              ...oldRequirements.passwordLength,
-              criteria: true,
-            },
-          };
-        });
-      }
+      validatePasswordLengthHandler(userInputRequirements, target.value);
 
-      if (target.value.match(/.*[A-Z].*/)) {
-        setUserInputRequirements((oldRequirements) => {
-          return {
-            ...oldRequirements,
-            doesPasswordIncludesCapitalLetter: {
-              ...oldRequirements.doesPasswordIncludesCapitalLetter,
-              criteria: true,
-            },
-          };
-        });
-      } else {
-        setUserInputRequirements((oldRequirements) => {
-          return {
-            ...oldRequirements,
-            doesPasswordIncludesCapitalLetter: {
-              ...oldRequirements.doesPasswordIncludesCapitalLetter,
-              criteria: false,
-            },
-          };
-        });
-      }
+      validatePasswordIncludesCapitalLetterHandler(
+        userInputRequirements,
+        target.value,
+        "Upper"
+      );
 
-      if (target.value.match(/.*[a-z].*/)) {
-        setUserInputRequirements((oldRequirements) => {
-          return {
-            ...oldRequirements,
-            doesPasswordIncludesLowerCaseLetter: {
-              ...oldRequirements.doesPasswordIncludesLowerCaseLetter,
-              criteria: true,
-            },
-          };
-        });
-      } else {
-        setUserInputRequirements((oldRequirements) => {
-          return {
-            ...oldRequirements,
-            doesPasswordIncludesLowerCaseLetter: {
-              ...oldRequirements.doesPasswordIncludesLowerCaseLetter,
-              criteria: false,
-            },
-          };
-        });
-      }
+      validatePasswordIncludesCapitalLetterHandler(
+        userInputRequirements,
+        target.value,
+        "Lower"
+      );
 
-      if (target.value.match(/.*[0-9].*/)) {
-        setUserInputRequirements((oldRequirements) => {
-          return {
-            ...oldRequirements,
-            doesPasswordIncludesADigit: {
-              ...oldRequirements.doesPasswordIncludesADigit,
-              criteria: true,
-            },
-          };
-        });
-      } else {
-        setUserInputRequirements((oldRequirements) => {
-          return {
-            ...oldRequirements,
-            doesPasswordIncludesADigit: {
-              ...oldRequirements.doesPasswordIncludesADigit,
-              criteria: false,
-            },
-          };
-        });
-      }
+      validatePasswordIncludesDigit(userInputRequirements, target.value);
     }
 
     setUserCredentials((oldCredentials) => {
