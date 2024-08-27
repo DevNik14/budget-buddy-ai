@@ -3,7 +3,7 @@ import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FormEvent, useState, useReducer, Reducer } from "react";
+import { FormEvent, useState } from "react";
 import { GoolgeSvg } from "@/assets/google";
 import { Link } from "react-router-dom";
 
@@ -42,52 +42,12 @@ type State = {
   };
 };
 
-type ACTIONTYPE =
-  | { type: "SET_EMAIL_VALUE_CRITERIA"; payload: boolean }
-  | { type: "SET_PASSWORD_LENGTH_CRITERIA"; payload: boolean };
-
-const userInputReducer = (state: State, action: ACTIONTYPE) => {
-  console.log(state);
-  console.log(action);
-
-  return state;
-};
-
-const emailRegex =
-  /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/gm;
-
 export default function RegisterForm(): React.JSX.Element {
   const [message, setMessage] = useState("");
   const [userCredentials, setUserCredentials] = useState({
     email: "",
     password: "",
   });
-
-  // const [userInputRequirements, dispatcher] = useReducer<
-  //   Reducer<State, ACTIONTYPE>
-  // >(userInputReducer, {
-  //   doesEmailPassChecks: {
-  //     criteria: false,
-  //     requirementMessage: "email@email.com",
-  //   },
-  //   passwordLength: {
-  //     criteria: false,
-  //     requirementMessage:
-  //       "Password needs to be between 3 and 30 characters long",
-  //   },
-  //   doesPasswordIncludesCapitalLetter: {
-  //     criteria: false,
-  //     requirementMessage: "At least 1 capital letter",
-  //   },
-  //   doesPasswordIncludesLowerCaseLetter: {
-  //     criteria: false,
-  //     requirementMessage: "At least 1 lower case letter",
-  //   },
-  //   doesPasswordIncludesADigit: {
-  //     criteria: false,
-  //     requirementMessage: "At least 1 digit",
-  //   },
-  // });
 
   const [userInputRequirements, setUserInputRequirements] = useState({
     doesEmailPassChecks: {
@@ -113,13 +73,15 @@ export default function RegisterForm(): React.JSX.Element {
     },
   });
 
-  const validateEmailHandler = (state: State, value: boolean) => {
+  const validateEmailHandler = (state: State, value: string) => {
+    const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/gm;
+    const isEmailValid = emailRegex.test(value);
     setUserInputRequirements((oldRequirements) => {
       return {
         ...oldRequirements,
         doesEmailPassChecks: {
           ...oldRequirements.doesEmailPassChecks,
-          criteria: value,
+          criteria: isEmailValid,
         },
       };
     });
@@ -174,10 +136,7 @@ export default function RegisterForm(): React.JSX.Element {
   const userCredentialsHandler = (e: FormEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement;
     if (target.name === "email") {
-      validateEmailHandler(
-        userInputRequirements,
-        emailRegex.test(target.value)
-      );
+      validateEmailHandler(userInputRequirements, target.value);
     } else {
       validatePasswordLengthHandler(userInputRequirements, target.value);
 
