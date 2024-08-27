@@ -127,10 +127,7 @@ export default function RegisterForm(): React.JSX.Element {
     dispatch({ type: "VALIDATE_EMAIL", payload: isEmailValid });
   };
 
-  const validatePasswordIncludesCapitalLetterHandler = (
-    value: string,
-    letterCase: string
-  ) => {
+  const validatePasswordCase = (value: string, letterCase: string) => {
     const regex = letterCase === "Upper" ? /.*[A-Z].*/ : /.*[a-z].*/;
     const foundCapitalLetter = regex.test(value);
     const key =
@@ -156,25 +153,23 @@ export default function RegisterForm(): React.JSX.Element {
   };
 
   const userCredentialsHandler = (e: FormEvent<HTMLInputElement>) => {
-    const target = e.target as HTMLInputElement;
-    if (target.name === "email") {
-      validateEmailHandler(target.value);
+    const { name, value } = e.target as HTMLInputElement;
+    if (name === "email") {
+      validateEmailHandler(value);
     } else {
-      validatePasswordLengthHandler(target.value);
+      validatePasswordLengthHandler(value);
 
-      validatePasswordIncludesCapitalLetterHandler(target.value, "Upper");
+      validatePasswordCase(value, "Upper");
 
-      validatePasswordIncludesCapitalLetterHandler(target.value, "Lower");
+      validatePasswordCase(value, "Lower");
 
-      validatePasswordIncludesDigit(target.value);
+      validatePasswordIncludesDigit(value);
     }
 
-    setUserCredentials((oldCredentials) => {
-      return {
-        ...oldCredentials,
-        [target.name]: target.value,
-      };
-    });
+    setUserCredentials((oldCredentials) => ({
+      ...oldCredentials,
+      [name]: value,
+    }));
   };
 
   const displayRequirementMessage = (start: number, end?: number) => {
@@ -190,6 +185,11 @@ export default function RegisterForm(): React.JSX.Element {
       ));
   };
 
+  const disableSignUpButtonHandler = () => {
+    return !Object.values(userInputRequirements).every((val) => val.criteria);
+  };
+
+  disableSignUpButtonHandler();
   const googleLoginClickHandler = () => {
     setMessage("Still in development");
 
@@ -240,6 +240,7 @@ export default function RegisterForm(): React.JSX.Element {
               <Button
                 className="rounded border-solid border-black"
                 variant="outline"
+                disabled={disableSignUpButtonHandler()}
               >
                 Sign up
               </Button>
