@@ -3,7 +3,7 @@ import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FormEvent, useState } from "react";
+import { FormEvent, ReducerAction, useReducer, useState } from "react";
 import { GoolgeSvg } from "@/assets/google";
 import { Link } from "react-router-dom";
 
@@ -42,14 +42,53 @@ type State = {
   };
 };
 
-export default function RegisterForm(): React.JSX.Element {
-  const [message, setMessage] = useState("");
-  const [userCredentials, setUserCredentials] = useState({
-    email: "",
-    password: "",
-  });
+type ACTION = {
+  type: string;
+  payload: boolean;
+  key?: string;
+};
 
-  const [userInputRequirements, setUserInputRequirements] = useState({
+const reducer = (state: State, action: ACTION) => {
+  switch (action.type) {
+    case "VALIDATE_EMAIL":
+      return {
+        ...state,
+        doesEmailPassChecks: {
+          ...state.doesEmailPassChecks,
+          criteria: action.payload,
+        },
+      };
+    case "VALIDATE_PASSWORD_CASE_LETTER":
+      return {
+        ...state,
+        [action.key!]: {
+          ...state[action.key as keyof typeof state],
+          criteria: action.payload,
+        },
+      };
+    case "VALIDATE_PASSWORD_LENGTH":
+      return {
+        ...state,
+        passwordLength: {
+          ...state.passwordLength,
+          criteria: action.payload,
+        },
+      };
+    case "VALIDATE_PASSWORD_FOR_DIGITS":
+      return {
+        ...state,
+        doesPasswordIncludesADigit: {
+          ...state.doesPasswordIncludesADigit,
+          criteria: action.payload,
+        },
+      };
+    default:
+      return state;
+  }
+};
+
+export default function RegisterForm(): React.JSX.Element {
+  const initialUserInputRequirements: State = {
     doesEmailPassChecks: {
       criteria: false,
       requirementMessage: "email@email.com",
@@ -71,24 +110,24 @@ export default function RegisterForm(): React.JSX.Element {
       criteria: false,
       requirementMessage: "At least 1 digit",
     },
+  };
+  const [message, setMessage] = useState("");
+  const [userCredentials, setUserCredentials] = useState({
+    email: "",
+    password: "",
   });
 
-  const validateEmailHandler = (state: State, value: string) => {
+  const [userInputRequirements, dispatch] = useReducer<
+    React.Reducer<State, ACTION>
+  >(reducer, initialUserInputRequirements);
+
+  const validateEmailHandler = (value: string) => {
     const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/gm;
     const isEmailValid = emailRegex.test(value);
-    setUserInputRequirements((oldRequirements) => {
-      return {
-        ...oldRequirements,
-        doesEmailPassChecks: {
-          ...oldRequirements.doesEmailPassChecks,
-          criteria: isEmailValid,
-        },
-      };
-    });
+    dispatch({ type: "VALIDATE_EMAIL", payload: isEmailValid });
   };
 
   const validatePasswordIncludesCapitalLetterHandler = (
-    state: State,
     value: string,
     letterCase: string
   ) => {
@@ -96,63 +135,38 @@ export default function RegisterForm(): React.JSX.Element {
     const foundCapitalLetter = regex.test(value);
     const key =
       `doesPasswordIncludes${letterCase}CaseLetter` as keyof typeof userInputRequirements;
-    setUserInputRequirements((oldRequirements) => {
-      return {
-        ...oldRequirements,
-        [key]: {
-          ...oldRequirements[key],
-          criteria: foundCapitalLetter,
-        },
-      };
+    dispatch({
+      type: `VALIDATE_PASSWORD_CASE_LETTER`,
+      payload: foundCapitalLetter,
+      key,
     });
   };
 
-  const validatePasswordLengthHandler = (state: State, value: string) => {
+  const validatePasswordLengthHandler = (value: string) => {
     const inRange = value.length > 5 && value.length < 31;
-    setUserInputRequirements((oldRequirements) => {
-      return {
-        ...oldRequirements,
-        passwordLength: {
-          ...oldRequirements.passwordLength,
-          criteria: inRange,
-        },
-      };
-    });
+    dispatch({ type: "VALIDATE_PASSWORD_LENGTH", payload: inRange });
   };
 
-  const validatePasswordIncludesDigit = (state: State, value: string) => {
+  const validatePasswordIncludesDigit = (value: string) => {
     const hasDigit = /.*[0-9].*/.test(value);
-    setUserInputRequirements((oldRequirements) => {
-      return {
-        ...oldRequirements,
-        doesPasswordIncludesADigit: {
-          ...oldRequirements.doesPasswordIncludesADigit,
-          criteria: hasDigit,
-        },
-      };
+    dispatch({
+      type: "VALIDATE_PASSWORD_FOR_DIGITS",
+      payload: hasDigit,
     });
   };
 
   const userCredentialsHandler = (e: FormEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement;
     if (target.name === "email") {
-      validateEmailHandler(userInputRequirements, target.value);
+      validateEmailHandler(target.value);
     } else {
-      validatePasswordLengthHandler(userInputRequirements, target.value);
+      validatePasswordLengthHandler(target.value);
 
-      validatePasswordIncludesCapitalLetterHandler(
-        userInputRequirements,
-        target.value,
-        "Upper"
-      );
+      validatePasswordIncludesCapitalLetterHandler(target.value, "Upper");
 
-      validatePasswordIncludesCapitalLetterHandler(
-        userInputRequirements,
-        target.value,
-        "Lower"
-      );
+      validatePasswordIncludesCapitalLetterHandler(target.value, "Lower");
 
-      validatePasswordIncludesDigit(userInputRequirements, target.value);
+      validatePasswordIncludesDigit(target.value);
     }
 
     setUserCredentials((oldCredentials) => {
@@ -161,6 +175,19 @@ export default function RegisterForm(): React.JSX.Element {
         [target.name]: target.value,
       };
     });
+  };
+
+  const displayRequirementMessage = (start: number, end?: number) => {
+    return Object.values(userInputRequirements)
+      .slice(start, end)
+      .map((value, i) => (
+        <li
+          key={i}
+          className={value.criteria ? "text-lime-500" : "text-red-500"}
+        >
+          {value.requirementMessage}
+        </li>
+      ));
   };
 
   const googleLoginClickHandler = () => {
@@ -192,18 +219,7 @@ export default function RegisterForm(): React.JSX.Element {
               />
               <div>
                 <ul className="text-left text-sm text-slate-700">
-                  {Object.values(userInputRequirements)
-                    .slice(0, 1)
-                    .map((value, i) => (
-                      <li
-                        key={i}
-                        className={
-                          value.criteria ? "text-lime-500" : "text-red-500"
-                        }
-                      >
-                        {value.requirementMessage}
-                      </li>
-                    ))}
+                  {displayRequirementMessage(0, 1)}
                 </ul>
               </div>
               <label htmlFor="password" className="text-left">
@@ -219,18 +235,7 @@ export default function RegisterForm(): React.JSX.Element {
                 onChange={userCredentialsHandler}
               />
               <ul className="text-left text-sm text-slate-700">
-                {Object.values(userInputRequirements)
-                  .slice(1)
-                  .map((value, i) => (
-                    <li
-                      key={i}
-                      className={
-                        value.criteria ? "text-lime-500" : "text-red-500"
-                      }
-                    >
-                      {value.requirementMessage}
-                    </li>
-                  ))}
+                {displayRequirementMessage(1)}
               </ul>
               <Button
                 className="rounded border-solid border-black"
