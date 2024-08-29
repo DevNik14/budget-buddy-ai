@@ -3,7 +3,7 @@ import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FormEvent, ReducerAction, useReducer, useState } from "react";
+import { FormEvent, useReducer, useState } from "react";
 import { GoolgeSvg } from "@/assets/google";
 import { Link } from "react-router-dom";
 
@@ -116,6 +116,10 @@ export default function RegisterForm(): React.JSX.Element {
     email: "",
     password: "",
   });
+  const [hideEmailRequirmentMessage, setHideEmailRequirmentMessage] =
+    useState(false);
+  const [hidePasswordRequirmentMessage, setHidePasswordRequirmentMessage] =
+    useState(false);
 
   const [userInputRequirements, dispatch] = useReducer<
     React.Reducer<State, ACTION>
@@ -124,14 +128,20 @@ export default function RegisterForm(): React.JSX.Element {
   const validateEmailHandler = (value: string) => {
     const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/gm;
     const isEmailValid = emailRegex.test(value);
+    if (hideEmailRequirmentMessage && !isEmailValid) {
+      setHideEmailRequirmentMessage(false);
+    }
     dispatch({ type: "VALIDATE_EMAIL", payload: isEmailValid });
   };
 
-  const validatePasswordCase = (value: string, letterCase: string) => {
+  const validatePasswordCaseHandler = (value: string, letterCase: string) => {
     const regex = letterCase === "Upper" ? /.*[A-Z].*/ : /.*[a-z].*/;
     const foundCapitalLetter = regex.test(value);
     const key =
       `doesPasswordIncludes${letterCase}CaseLetter` as keyof typeof userInputRequirements;
+    if (hidePasswordRequirmentMessage && !foundCapitalLetter) {
+      setHidePasswordRequirmentMessage(false);
+    }
     dispatch({
       type: `VALIDATE_PASSWORD_CASE_LETTER`,
       payload: foundCapitalLetter,
@@ -141,11 +151,17 @@ export default function RegisterForm(): React.JSX.Element {
 
   const validatePasswordLengthHandler = (value: string) => {
     const inRange = value.length > 5 && value.length < 31;
+    if (hidePasswordRequirmentMessage && !inRange) {
+      setHidePasswordRequirmentMessage(false);
+    }
     dispatch({ type: "VALIDATE_PASSWORD_LENGTH", payload: inRange });
   };
 
-  const validatePasswordIncludesDigit = (value: string) => {
+  const validatePasswordIncludesDigitHandler = (value: string) => {
     const hasDigit = /.*[0-9].*/.test(value);
+    if (hidePasswordRequirmentMessage && !hasDigit) {
+      setHidePasswordRequirmentMessage(false);
+    }
     dispatch({
       type: "VALIDATE_PASSWORD_FOR_DIGITS",
       payload: hasDigit,
@@ -159,11 +175,11 @@ export default function RegisterForm(): React.JSX.Element {
     } else {
       validatePasswordLengthHandler(value);
 
-      validatePasswordCase(value, "Upper");
+      validatePasswordCaseHandler(value, "Upper");
 
-      validatePasswordCase(value, "Lower");
+      validatePasswordCaseHandler(value, "Lower");
 
-      validatePasswordIncludesDigit(value);
+      validatePasswordIncludesDigitHandler(value);
     }
 
     setUserCredentials((oldCredentials) => ({
@@ -189,7 +205,21 @@ export default function RegisterForm(): React.JSX.Element {
     return !Object.values(userInputRequirements).every((val) => val.criteria);
   };
 
-  disableSignUpButtonHandler();
+  const outOfFocusEmailInputHandler = () => {
+    if (userInputRequirements.doesEmailPassChecks.criteria)
+      setHideEmailRequirmentMessage(true);
+  };
+
+  const outOfFocusPasswordInputHandler = () => {
+    if (
+      Object.values(userInputRequirements)
+        .slice(1)
+        .every((val) => val.criteria)
+    ) {
+      setHidePasswordRequirmentMessage(true);
+    }
+  };
+
   const googleLoginClickHandler = () => {
     setMessage("Still in development");
 
@@ -216,12 +246,15 @@ export default function RegisterForm(): React.JSX.Element {
                 className="rounded"
                 value={userCredentials.email}
                 onChange={userCredentialsHandler}
+                onBlur={outOfFocusEmailInputHandler}
               />
-              <div>
-                <ul className="text-left text-sm text-slate-700">
-                  {displayRequirementMessage(0, 1)}
-                </ul>
-              </div>
+              <ul
+                className={`text-left text-sm text-slate-700 ${
+                  hideEmailRequirmentMessage && `hidden`
+                }`}
+              >
+                {displayRequirementMessage(0, 1)}
+              </ul>
               <label htmlFor="password" className="text-left">
                 Password
               </label>
@@ -233,8 +266,13 @@ export default function RegisterForm(): React.JSX.Element {
                 className="rounded"
                 value={userCredentials.password}
                 onChange={userCredentialsHandler}
+                onBlur={outOfFocusPasswordInputHandler}
               />
-              <ul className="text-left text-sm text-slate-700">
+              <ul
+                className={`text-left text-sm text-slate-700 ${
+                  hidePasswordRequirmentMessage && `hidden`
+                }`}
+              >
                 {displayRequirementMessage(1)}
               </ul>
               <Button
