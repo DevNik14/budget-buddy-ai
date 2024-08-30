@@ -1,23 +1,12 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { FormEvent, useReducer, useState } from "react";
+import { Link } from "react-router-dom";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+
+import { auth } from "@/config/firebase";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FormEvent, useReducer, useState } from "react";
 import { GoolgeSvg } from "@/assets/google";
-import { Link } from "react-router-dom";
-
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
-};
-
-const app = initializeApp(firebaseConfig);
 
 type State = {
   doesEmailPassChecks: {
@@ -86,6 +75,7 @@ const reducer = (state: State, action: ACTION) => {
       return state;
   }
 };
+console.log("All env variables:", import.meta.env.VITE_FIREBASE_API_KEY);
 
 export default function RegisterForm(): React.JSX.Element {
   const initialUserInputRequirements: State = {
@@ -279,6 +269,21 @@ export default function RegisterForm(): React.JSX.Element {
                 className="rounded border-solid border-black"
                 variant="outline"
                 disabled={disableSignUpButtonHandler()}
+                onClick={() => {
+                  createUserWithEmailAndPassword(
+                    auth,
+                    userCredentials.email,
+                    userCredentials.password
+                  )
+                    .then((credentials) => {
+                      const user = credentials.user;
+                      console.log(user);
+                    })
+                    .catch((error) => {
+                      console.log(error.code);
+                      console.log(error.message);
+                    });
+                }}
               >
                 Sign up
               </Button>
