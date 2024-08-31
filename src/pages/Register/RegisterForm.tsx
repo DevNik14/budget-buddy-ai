@@ -1,4 +1,4 @@
-import { FormEvent, useReducer, useState } from "react";
+import { FormEvent, useEffect, useReducer, useState } from "react";
 import { Link } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
@@ -75,7 +75,6 @@ const reducer = (state: State, action: ACTION) => {
       return state;
   }
 };
-console.log("All env variables:", import.meta.env.VITE_FIREBASE_API_KEY);
 
 export default function RegisterForm(): React.JSX.Element {
   const initialUserInputRequirements: State = {
@@ -115,12 +114,45 @@ export default function RegisterForm(): React.JSX.Element {
     React.Reducer<State, ACTION>
   >(reducer, initialUserInputRequirements);
 
+  const disableEmailHintsHandler = () => {
+    if (userInputRequirements.doesEmailPassChecks.criteria)
+      setHideEmailRequirmentMessage(true);
+  };
+
+  const disablePasswordHintsHandler = () => {
+    if (
+      Object.values(userInputRequirements)
+        .slice(1)
+        .every((val) => val.criteria)
+    ) {
+      setHidePasswordRequirmentMessage(true);
+    }
+  };
+
+  useEffect(() => {
+    disableEmailHintsHandler();
+    disablePasswordHintsHandler();
+  }, [userInputRequirements]);
+
+  const toggleRequirmentMessagesHandler = (
+    val: boolean,
+    credential: string
+  ) => {
+    if (credential === "email") {
+      if (hideEmailRequirmentMessage && !val) {
+        setHideEmailRequirmentMessage(false);
+      }
+    } else {
+      if (hidePasswordRequirmentMessage && !val) {
+        setHidePasswordRequirmentMessage(false);
+      }
+    }
+  };
+
   const validateEmailHandler = (value: string) => {
     const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/gm;
     const isEmailValid = emailRegex.test(value);
-    if (hideEmailRequirmentMessage && !isEmailValid) {
-      setHideEmailRequirmentMessage(false);
-    }
+    toggleRequirmentMessagesHandler(isEmailValid, "email");
     dispatch({ type: "VALIDATE_EMAIL", payload: isEmailValid });
   };
 
@@ -129,9 +161,7 @@ export default function RegisterForm(): React.JSX.Element {
     const foundCapitalLetter = regex.test(value);
     const key =
       `doesPasswordIncludes${letterCase}CaseLetter` as keyof typeof userInputRequirements;
-    if (hidePasswordRequirmentMessage && !foundCapitalLetter) {
-      setHidePasswordRequirmentMessage(false);
-    }
+    toggleRequirmentMessagesHandler(foundCapitalLetter, "password");
     dispatch({
       type: `VALIDATE_PASSWORD_CASE_LETTER`,
       payload: foundCapitalLetter,
@@ -141,22 +171,34 @@ export default function RegisterForm(): React.JSX.Element {
 
   const validatePasswordLengthHandler = (value: string) => {
     const inRange = value.length > 5 && value.length < 31;
-    if (hidePasswordRequirmentMessage && !inRange) {
-      setHidePasswordRequirmentMessage(false);
-    }
+    toggleRequirmentMessagesHandler(inRange, "password");
     dispatch({ type: "VALIDATE_PASSWORD_LENGTH", payload: inRange });
   };
 
   const validatePasswordIncludesDigitHandler = (value: string) => {
     const hasDigit = /.*[0-9].*/.test(value);
-    if (hidePasswordRequirmentMessage && !hasDigit) {
-      setHidePasswordRequirmentMessage(false);
-    }
+    toggleRequirmentMessagesHandler(hasDigit, "password");
     dispatch({
       type: "VALIDATE_PASSWORD_FOR_DIGITS",
       payload: hasDigit,
     });
   };
+
+  const displayRequirementMessage = (start: number, end?: number) => {
+    return Object.values(userInputRequirements)
+      .slice(start, end)
+      .map((value, i) => (
+        <li
+          key={i}
+          className={value.criteria ? "text-lime-500" : "text-red-500"}
+        >
+          {value.requirementMessage}
+        </li>
+      ));
+  };
+
+  const disableSignUpButtonHandler = () =>
+    !Object.values(userInputRequirements).every((val) => val.criteria);
 
   const userCredentialsHandler = (e: FormEvent<HTMLInputElement>) => {
     const { name, value } = e.target as HTMLInputElement;
@@ -178,44 +220,32 @@ export default function RegisterForm(): React.JSX.Element {
     }));
   };
 
-  const displayRequirementMessage = (start: number, end?: number) => {
-    return Object.values(userInputRequirements)
-      .slice(start, end)
-      .map((value, i) => (
-        <li
-          key={i}
-          className={value.criteria ? "text-lime-500" : "text-red-500"}
-        >
-          {value.requirementMessage}
-        </li>
-      ));
-  };
-
-  const disableSignUpButtonHandler = () => {
-    return !Object.values(userInputRequirements).every((val) => val.criteria);
-  };
-
-  const outOfFocusEmailInputHandler = () => {
-    if (userInputRequirements.doesEmailPassChecks.criteria)
-      setHideEmailRequirmentMessage(true);
-  };
-
-  const outOfFocusPasswordInputHandler = () => {
-    if (
-      Object.values(userInputRequirements)
-        .slice(1)
-        .every((val) => val.criteria)
-    ) {
-      setHidePasswordRequirmentMessage(true);
-    }
-  };
-
   const googleLoginClickHandler = () => {
     setMessage("Still in development");
 
     setTimeout(() => {
       setMessage("");
     }, 3000);
+  };
+
+  const createUserHandler = (e) => {
+    const target = e.currentTarget;
+    console.log(target);
+
+    // createUserWithEmailAndPassword(
+    //   auth,
+    //   userCredentials.email,
+    //   userCredentials.password
+    // )
+    //   .then((credentials) => {
+    //     const user = credentials.user;
+    //     console.log(user);
+    //   })
+    //   .catch((error) => {
+    //     console.log(error.code);
+    //     console.log(error.message);
+    //   });
+    console.log("clicked");
   };
 
   return (
@@ -236,7 +266,6 @@ export default function RegisterForm(): React.JSX.Element {
                 className="rounded"
                 value={userCredentials.email}
                 onChange={userCredentialsHandler}
-                onBlur={outOfFocusEmailInputHandler}
               />
               <ul
                 className={`text-left text-sm text-slate-700 ${
@@ -256,7 +285,6 @@ export default function RegisterForm(): React.JSX.Element {
                 className="rounded"
                 value={userCredentials.password}
                 onChange={userCredentialsHandler}
-                onBlur={outOfFocusPasswordInputHandler}
               />
               <ul
                 className={`text-left text-sm text-slate-700 ${
@@ -269,21 +297,7 @@ export default function RegisterForm(): React.JSX.Element {
                 className="rounded border-solid border-black"
                 variant="outline"
                 disabled={disableSignUpButtonHandler()}
-                onClick={() => {
-                  createUserWithEmailAndPassword(
-                    auth,
-                    userCredentials.email,
-                    userCredentials.password
-                  )
-                    .then((credentials) => {
-                      const user = credentials.user;
-                      console.log(user);
-                    })
-                    .catch((error) => {
-                      console.log(error.code);
-                      console.log(error.message);
-                    });
-                }}
+                onClick={createUserHandler}
               >
                 Sign up
               </Button>
