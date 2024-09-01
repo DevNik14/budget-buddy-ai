@@ -1,5 +1,5 @@
-import { FormEvent, useEffect, useReducer, useState } from "react";
-import { Link } from "react-router-dom";
+import { FormEvent, useContext, useEffect, useReducer, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
 import { auth } from "@/config/firebase";
@@ -7,6 +7,9 @@ import { auth } from "@/config/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GoolgeSvg } from "@/assets/google";
+import AuthProvider from "@/contexts/authContext";
+import { AuthContext } from "@/contexts/authContext";
+import { FirebaseError } from "firebase/app";
 
 type State = {
   doesEmailPassChecks: {
@@ -77,6 +80,8 @@ const reducer = (state: State, action: ACTION) => {
 };
 
 export default function RegisterForm(): React.JSX.Element {
+  const authContext = useContext(AuthContext);
+  const navigate = useNavigate();
   const initialUserInputRequirements: State = {
     doesEmailPassChecks: {
       criteria: false,
@@ -228,24 +233,19 @@ export default function RegisterForm(): React.JSX.Element {
     }, 3000);
   };
 
-  const createUserHandler = (e) => {
-    const target = e.currentTarget;
-    console.log(target);
-
-    // createUserWithEmailAndPassword(
-    //   auth,
-    //   userCredentials.email,
-    //   userCredentials.password
-    // )
-    //   .then((credentials) => {
-    //     const user = credentials.user;
-    //     console.log(user);
-    //   })
-    //   .catch((error) => {
-    //     console.log(error.code);
-    //     console.log(error.message);
-    //   });
-    console.log("clicked");
+  const createUserHandler = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    try {
+      await createUserWithEmailAndPassword(
+        auth,
+        userCredentials.email,
+        userCredentials.password
+      );
+      navigate("/");
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        console.log(error.code);
+      }
+    }
   };
 
   return (
