@@ -8,6 +8,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} />
+        <Route path="/" element={<h1>Home</h1>} />
       </Routes>
 
       <footer className="absolute bottom-0 text-center w-full">
