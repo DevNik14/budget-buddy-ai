@@ -1,15 +1,16 @@
 import { FormEvent, useContext, useEffect, useReducer, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-
+import { FirebaseError } from "firebase/app";
 import { auth } from "@/config/firebase";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GoolgeSvg } from "@/assets/google";
+import { useToast } from "@/hooks/use-toast";
+
 import AuthProvider from "@/contexts/authContext";
 import { AuthContext } from "@/contexts/authContext";
-import { FirebaseError } from "firebase/app";
 
 type State = {
   doesEmailPassChecks: {
@@ -80,6 +81,7 @@ const reducer = (state: State, action: ACTION) => {
 };
 
 export default function RegisterForm(): React.JSX.Element {
+  const { toast } = useToast();
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
   const initialUserInputRequirements: State = {
@@ -110,6 +112,7 @@ export default function RegisterForm(): React.JSX.Element {
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
   const [hideEmailRequirmentMessage, setHideEmailRequirmentMessage] =
     useState(false);
   const [hidePasswordRequirmentMessage, setHidePasswordRequirmentMessage] =
@@ -243,7 +246,13 @@ export default function RegisterForm(): React.JSX.Element {
       navigate("/");
     } catch (error) {
       if (error instanceof FirebaseError) {
-        console.log(error.code);
+        const errorMessage = error.code.split("/")[1].split("-").join(" ");
+        const firstLetter = errorMessage[0].toUpperCase();
+        const formattedMessage = `${firstLetter}${errorMessage.slice(1)}`;
+        setError(formattedMessage);
+        setTimeout(() => {
+          setError("");
+        }, 3000);
       }
     }
   };
@@ -317,6 +326,9 @@ export default function RegisterForm(): React.JSX.Element {
                   <Link to="/login">Sign in</Link>
                 </strong>
               </p>
+              <div>
+                <div>{error !== "" && <p>{error}</p>}</div>
+              </div>
             </div>
           </div>
         </div>
