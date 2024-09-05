@@ -14,7 +14,10 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     const subscriber = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+      if (user) {
+        setUser(auth.currentUser);
+      } else {
+      }
     });
     return subscriber;
   }, []);

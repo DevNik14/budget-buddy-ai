@@ -7,9 +7,7 @@ import { auth } from "@/config/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GoolgeSvg } from "@/assets/google";
-import { useToast } from "@/hooks/use-toast";
 
-import AuthProvider from "@/contexts/authContext";
 import { AuthContext } from "@/contexts/authContext";
 
 type State = {
@@ -81,7 +79,6 @@ const reducer = (state: State, action: ACTION) => {
 };
 
 export default function RegisterForm(): React.JSX.Element {
-  const { toast } = useToast();
   const authContext = useContext(AuthContext);
   const navigate = useNavigate();
   const initialUserInputRequirements: State = {
