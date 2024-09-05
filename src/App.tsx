@@ -10,13 +10,6 @@ function App() {
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/" element={<h1>Home</h1>} />
       </Routes>
-
-      <footer className="absolute bottom-0 text-center w-full">
-        Built with &#x2764; by{" "}
-        <a href="https://github.com/DevNik14" target="_blank">
-          <strong>Nikolay Kyurchiyski</strong>
-        </a>
-      </footer>
     </>
   );
 }
