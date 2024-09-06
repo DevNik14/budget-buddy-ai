@@ -1,32 +1,28 @@
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/config/firebase";
-import { createContext, PropsWithChildren, useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import {
+  createContext,
+  PropsWithChildren,
+  useEffect,
+  useState,
+  useContext,
+} from "react";
 
 export const AuthContext = createContext(null as any);
 
-const AuthProvider = ({ children }: PropsWithChildren) => {
-  const [user, setUser] = useState<User | null>(null);
-
-  const setUserHandler = (user: User) => {
-    setUser(user);
-  };
+export const AuthProvider = ({ children }: PropsWithChildren) => {
+  const [user, setUser] = useState<User | null>(() => auth.currentUser);
 
   useEffect(() => {
     const subscriber = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(auth.currentUser);
-      } else {
-      }
+      setUser(auth.currentUser);
     });
     return subscriber;
   }, []);
 
-  return (
-    <AuthContext.Provider value={{ user, setUserHandler }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={user}>{children}</AuthContext.Provider>;
 };
 
-export default AuthProvider;
+export function useAuth() {
+  return useContext(AuthContext);
+}
