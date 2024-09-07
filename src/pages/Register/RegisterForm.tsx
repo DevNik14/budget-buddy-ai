@@ -1,14 +1,13 @@
 import { FormEvent, useContext, useEffect, useReducer, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
-import { auth } from "@/config/firebase";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GoolgeSvg } from "@/assets/google";
 
-import { AuthContext } from "@/contexts/authContext";
+import { useRegister } from "./hooks";
+import { formatErrorMessage } from "@/utils/formatErrorMessage";
 
 type State = {
   doesEmailPassChecks: {
@@ -79,7 +78,6 @@ const reducer = (state: State, action: ACTION) => {
 };
 
 export default function RegisterForm(): React.JSX.Element {
-  const authContext = useContext(AuthContext);
   const navigate = useNavigate();
   const initialUserInputRequirements: State = {
     doesEmailPassChecks: {
@@ -233,20 +231,13 @@ export default function RegisterForm(): React.JSX.Element {
     }, 3000);
   };
 
-  const createUserHandler = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const createUserHandler = async () => {
     try {
-      await createUserWithEmailAndPassword(
-        auth,
-        userCredentials.email,
-        userCredentials.password
-      );
+      await useRegister(userCredentials.email, userCredentials.password);
       navigate("/");
     } catch (error) {
       if (error instanceof FirebaseError) {
-        const errorMessage = error.code.split("/")[1].split("-").join(" ");
-        const firstLetter = errorMessage[0].toUpperCase();
-        const formattedMessage = `${firstLetter}${errorMessage.slice(1)}`;
-        setError(formattedMessage);
+        setError(formatErrorMessage(error));
         setTimeout(() => {
           setError("");
         }, 3000);
