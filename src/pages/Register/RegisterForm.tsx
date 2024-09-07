@@ -259,7 +259,14 @@ export default function RegisterForm(): React.JSX.Element {
       <main>
         <div className="grid grid-cols-1 md:grid-cols-2">
           <div className="bg-[#0047AB]"></div>
-          <div className="flex flex-col justify-center items-center h-screen w-full">
+          <div className="flex flex-col justify-center items-center h-screen w-full ">
+            <div className="h-12 mb-4">
+              {error !== "" && (
+                <p className="text-red-500 bg-red-100 px-4 py-2 rounded-md text-sm transition-opacity duration-300 ease-in-out">
+                  {error}
+                </p>
+              )}
+            </div>
             <div className="flex flex-col w-4/6 text-center gap-y-3">
               <label htmlFor="email" className="text-left">
                 Email
@@ -323,9 +330,6 @@ export default function RegisterForm(): React.JSX.Element {
                   <Link to="/login">Sign in</Link>
                 </strong>
               </p>
-              <div>
-                <div>{error !== "" && <p>{error}</p>}</div>
-              </div>
             </div>
           </div>
         </div>
