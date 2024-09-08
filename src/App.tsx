@@ -1,8 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import LoginForm from "./pages/Login/LoginForm";
 import RegisterForm from "./pages/Register/RegisterForm";
-import { useContext } from "react";
-import { AuthContext, useAuth } from "./contexts/authContext";
+import { useAuth } from "./contexts/authContext";
 
 function App() {
   const auth = useAuth();
@@ -19,4 +18,3 @@ function App() {
 }
 
 export default App;
-

@@ -1,9 +1,9 @@
-import RegisterForm from "./LoginForm";
+import LoginForm from "./LoginForm";
 
-export default function RegisterFormPage(): React.JSX.Element {
+export default function LoginFormPage(): React.JSX.Element {
   return (
     <>
-      <RegisterForm />
+      <LoginForm />
     </>
   );
 }
