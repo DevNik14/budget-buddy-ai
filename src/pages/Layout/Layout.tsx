@@ -4,16 +4,15 @@ import { Navigate, Outlet } from "react-router-dom";
 
 export default function Layout() {
   const auth = useAuth();
-  console.log(auth);
 
   if (!auth.user && auth.authenticated) {
     return <Navigate to="/login" replace />;
   }
 
   return (
-    <>
+    <div className="flex h-screen bg-gray-100">
       <SideNavigation />
       <Outlet />
-    </>
+    </div>
   );
 }
