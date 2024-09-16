@@ -20,11 +20,17 @@ export default function SideNavigation() {
   const navigate = useNavigate();
   const user = useAuth();
   const navMenuItems = [
-    { icon: Home, path: "dashboard", name: "Dashboard" },
+    { icon: Home, path: "/", name: "Dashboard" },
     { icon: CreditCard, path: "transactions", name: "Transactions" },
     { icon: PiggyBank, path: "budget", name: "Budget" },
     { icon: Bot, path: "advisor", name: "AI Advisor" },
   ];
+
+  const setActiveClassHandler = ({ isActive }: { isActive: boolean }) => {
+    return `w-full justify-start flex items-center h-10 px-4 py-2 rounded  ${
+      isActive ? "bg-slate-300" : ""
+    }`;
+  };
 
   const displayNavMenuItems = () => {
     return (
@@ -33,7 +39,7 @@ export default function SideNavigation() {
           {navMenuItems.map((item) => {
             return (
               <NavLink
-                className="w-full justify-start flex items-center"
+                className={setActiveClassHandler}
                 to={item.path}
                 key={item.name}
               >
