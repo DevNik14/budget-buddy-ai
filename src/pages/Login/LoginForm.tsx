@@ -10,8 +10,10 @@ import { Input } from "@/components/ui/input";
 import { GoolgeSvg } from "@/assets/google";
 import { FirebaseError } from "firebase/app";
 import { formatErrorMessage } from "@/utils/formatErrorMessage";
+import { useAuth } from "@/contexts/authContext";
 
 export default function LoginForm(): React.JSX.Element {
+  const user = useAuth();
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [userCredentials, setUserCredentials] = useState({
@@ -40,6 +42,7 @@ export default function LoginForm(): React.JSX.Element {
         userCredentials.email,
         userCredentials.password
       );
+      user.setAuthenticated(true);
       navigate("/");
     } catch (error) {
       if (error instanceof FirebaseError) {
