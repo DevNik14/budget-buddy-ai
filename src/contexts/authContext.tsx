@@ -18,12 +18,13 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     const subscriber = onAuthStateChanged(auth, (user) => {
-      if (user && !authenticated) {
+      if (user) {
         setUser(user);
         setAuthenticated(true);
         navigate("/");
       } else {
         setUser(null);
+        setAuthenticated(false);
         navigate("/login");
       }
     });

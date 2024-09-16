@@ -1,7 +1,7 @@
 import { auth } from "@/config/firebase";
 import { useAuth } from "@/contexts/authContext";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 
@@ -17,13 +17,14 @@ import {
 } from "lucide-react";
 
 export default function SideNavigation() {
+  const navigate = useNavigate();
+  const user = useAuth();
   const navMenuItems = [
     { icon: Home, path: "dashboard", name: "Dashboard" },
     { icon: CreditCard, path: "transactions", name: "Transactions" },
     { icon: PiggyBank, path: "budget", name: "Budget" },
     { icon: Bot, path: "advisor", name: "AI Advisor" },
   ];
-  const user = useAuth();
 
   const displayNavMenuItems = () => {
     return (
@@ -73,6 +74,7 @@ export default function SideNavigation() {
             signOut(auth)
               .then(() => {
                 user.setAuthenticated(false);
+                navigate("/login");
                 console.log("Signed out");
               })
               .catch((error) => {
