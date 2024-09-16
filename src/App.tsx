@@ -5,6 +5,7 @@ import RegisterForm from "./pages/Register/RegisterForm";
 import Layout from "./pages/Layout/Layout";
 
 import { useAuth } from "./contexts/authContext";
+import DashboardPage from "./pages/Dashboard";
 
 function App() {
   const user = useAuth();
@@ -19,7 +20,7 @@ function App() {
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} />
         <Route element={<Layout />}>
-          <Route path="/" element={hello} />
+          <Route path="/" element={<DashboardPage />} />
         </Route>
       </Routes>
     </>
