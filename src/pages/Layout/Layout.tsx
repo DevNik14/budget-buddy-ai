@@ -10,7 +10,7 @@ export default function Layout() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
       <SideNavigation />
       <Outlet />
     </div>
