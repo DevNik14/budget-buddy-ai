@@ -54,7 +54,7 @@ export default function SideNavigation() {
   };
 
   return (
-    <aside className="w-64 bg-white shadow-md">
+    <aside className="w-64 bg-white shadow-md hidden md:block">
       <div className="p-5">
         <div className="flex items-center space-x-3">
           <Avatar>
@@ -80,7 +80,7 @@ export default function SideNavigation() {
             signOut(auth)
               .then(() => {
                 user.setAuthenticated(false);
-                navigate("/login");
+                navigate("/login", { replace: true });
                 console.log("Signed out");
               })
               .catch((error) => {

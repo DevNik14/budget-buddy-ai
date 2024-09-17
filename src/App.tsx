@@ -1,19 +1,11 @@
 import { Routes, Route } from "react-router-dom";
 
+import Layout from "./pages/Layout/Layout";
+import DashboardPage from "./pages/Dashboard";
 import LoginForm from "./pages/Login/LoginForm";
 import RegisterForm from "./pages/Register/RegisterForm";
-import Layout from "./pages/Layout/Layout";
-
-import { useAuth } from "./contexts/authContext";
-import DashboardPage from "./pages/Dashboard";
 
 function App() {
-  const user = useAuth();
-  const hello = user ? (
-    <h1>hello, {user.user?.email}</h1>
-  ) : (
-    <h1>hello, stranger</h1>
-  );
   return (
     <>
       <Routes>
