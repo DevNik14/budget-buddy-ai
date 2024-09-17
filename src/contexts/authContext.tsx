@@ -21,15 +21,15 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       if (user) {
         setUser(user);
         setAuthenticated(true);
-        navigate("/");
+        navigate("/", { replace: true });
       } else {
         setUser(null);
         setAuthenticated(false);
-        navigate("/login");
+        navigate("/login", { replace: true });
       }
     });
     return subscriber;
-  }, []);
+  }, [navigate]);
 
   return (
     <AuthContext.Provider value={{ user, authenticated, setAuthenticated }}>
