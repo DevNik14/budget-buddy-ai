@@ -15,6 +15,7 @@ import {
   PiggyBank,
   Settings,
 } from "lucide-react";
+import MobileNavigation from "./MobileNavigation";
 
 export default function SideNavigation() {
   const navigate = useNavigate();
@@ -54,46 +55,52 @@ export default function SideNavigation() {
   };
 
   return (
-    <aside className="w-64 bg-white shadow-md hidden md:block">
-      <div className="p-5">
-        <div className="flex items-center space-x-3">
-          <Avatar>
-            <AvatarImage src="/placeholder.svg?height=40&width=40" alt="User" />
-            <AvatarFallback>JD</AvatarFallback>
-          </Avatar>
-          <div>
-            <h2 className="font-semibold">John Doe</h2>
-            <p className="text-sm text-gray-500">john@example.com</p>
+    <>
+      {<MobileNavigation />}
+      <aside className="w-64 bg-white shadow-md hidden md:block">
+        <div className="p-5">
+          <div className="flex items-center space-x-3">
+            <Avatar>
+              <AvatarImage
+                src="/placeholder.svg?height=40&width=40"
+                alt="User"
+              />
+              <AvatarFallback>JD</AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="font-semibold">John Doe</h2>
+              <p className="text-sm text-gray-500">john@example.com</p>
+            </div>
           </div>
         </div>
-      </div>
-      {displayNavMenuItems()}
-      <div className="p-5 space-y-2">
-        <Button variant="outline" className="w-full justify-start">
-          <Settings className="mr-2 h-4 w-4" />
-          Settings
-        </Button>
-        <Button
-          variant="outline"
-          className="w-full justify-start"
-          onClick={() => {
-            signOut(auth)
-              .then(() => {
-                user.setAuthenticated(false);
-                navigate("/login", { replace: true });
-                console.log("Signed out");
-              })
-              .catch((error) => {
-                if (error instanceof FirebaseError) {
-                  console.log(error);
-                }
-              });
-          }}
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          Sign out
-        </Button>
-      </div>
-    </aside>
+        {displayNavMenuItems()}
+        <div className="p-5 space-y-2">
+          <Button variant="outline" className="w-full justify-start">
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full justify-start"
+            onClick={() => {
+              signOut(auth)
+                .then(() => {
+                  user.setAuthenticated(false);
+                  navigate("/login", { replace: true });
+                  console.log("Signed out");
+                })
+                .catch((error) => {
+                  if (error instanceof FirebaseError) {
+                    console.log(error);
+                  }
+                });
+            }}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Sign out
+          </Button>
+        </div>
+      </aside>
+    </>
   );
 }
