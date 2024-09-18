@@ -1,4 +1,5 @@
 import { useAuth } from "@/contexts/authContext";
+import { navMenuItems } from "@/data/navItems";
 
 import { auth } from "@/config/firebase";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -15,24 +16,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import {
-  Menu,
-  CreditCard,
-  Bot,
-  Home,
-  LogOut,
-  PiggyBank,
-  Settings,
-} from "lucide-react";
+import { Menu, LogOut, Settings } from "lucide-react";
 
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-
-const navMenuItems = [
-  { icon: Home, path: "/", name: "Dashboard" },
-  { icon: CreditCard, path: "transactions", name: "Transactions" },
-  { icon: PiggyBank, path: "budget", name: "Budget" },
-  { icon: Bot, path: "advisor", name: "AI Advisor" },
-];
 
 export default function MobileNavigation() {
   const user = useAuth();
