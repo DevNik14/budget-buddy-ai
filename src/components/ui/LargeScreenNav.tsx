@@ -1,5 +1,6 @@
 import { auth } from "@/config/firebase";
 import { useAuth } from "@/contexts/authContext";
+import { navMenuItems } from "@/data/navItems";
 
 import { NavLink, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
@@ -7,27 +8,13 @@ import { FirebaseError } from "firebase/app";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  CreditCard,
-  Bot,
-  Home,
-  LogOut,
-  PiggyBank,
-  Settings,
-} from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 
 const setActiveClassHandler = ({ isActive }: { isActive: boolean }) => {
   return `w-full justify-start flex items-center h-10 px-4 py-2 rounded  ${
     isActive ? "bg-slate-300" : ""
   }`;
 };
-
-const navMenuItems = [
-  { icon: Home, path: "/", name: "Dashboard" },
-  { icon: CreditCard, path: "transactions", name: "Transactions" },
-  { icon: PiggyBank, path: "budget", name: "Budget" },
-  { icon: Bot, path: "advisor", name: "AI Advisor" },
-];
 
 export default function LargeScreenNav() {
   const navigate = useNavigate();
