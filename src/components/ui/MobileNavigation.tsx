@@ -37,8 +37,9 @@ const navMenuItems = [
 export default function MobileNavigation() {
   const user = useAuth();
   const navigate = useNavigate();
+
   return (
-    <header className="flex h-14 items-center gap-4 border-b px-4 lg:h-[60px] lg:px-6">
+    <header className="flex h-14 md:hidden items-center gap-4 border-b px-4 lg:h-[60px] lg:px-6">
       <Sheet>
         <SheetDescription>
           <VisuallyHidden.Root>Mobile Navigation</VisuallyHidden.Root>
@@ -53,7 +54,7 @@ export default function MobileNavigation() {
           <SheetTitle>
             <VisuallyHidden.Root>Menu</VisuallyHidden.Root>
           </SheetTitle>
-          <aside className="md:hidden">
+          <aside>
             <div className="p-5">
               <div className="flex items-center space-x-3">
                 <Avatar>
