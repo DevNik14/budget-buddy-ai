@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import MobileNavigation from "./MobileNavigation";
 import LargeScreenNav from "./LargeScreenNav";
 
-export default function ResponsiveNavigation() {
+export default function SideNavigation() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {

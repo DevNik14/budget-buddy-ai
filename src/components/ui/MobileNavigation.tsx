@@ -1,10 +1,6 @@
-import { useAuth } from "@/contexts/authContext";
 import { navMenuItems } from "@/data/navItems";
 
-import { auth } from "@/config/firebase";
-import { NavLink, useNavigate } from "react-router-dom";
-import { signOut } from "firebase/auth";
-import { FirebaseError } from "firebase/app";
+import { NavLink } from "react-router-dom";
 
 import {
   Sheet,
@@ -14,16 +10,14 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import { Menu, LogOut, Settings } from "lucide-react";
+import { Menu } from "lucide-react";
 
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import NavAvatar from "./NavAvatar";
+import UserActionMenu from "./UserActionMenu";
 
 export default function MobileNavigation() {
-  const user = useAuth();
-  const navigate = useNavigate();
-
   return (
     <header className="flex h-14 md:hidden items-center gap-4 border-b px-4 lg:h-[60px] lg:px-6">
       <Sheet>
@@ -41,21 +35,7 @@ export default function MobileNavigation() {
             <VisuallyHidden.Root>Menu</VisuallyHidden.Root>
           </SheetTitle>
           <aside>
-            <div className="p-5">
-              <div className="flex items-center space-x-3">
-                <Avatar>
-                  <AvatarImage
-                    src="/placeholder.svg?height=40&width=40"
-                    alt="User"
-                  />
-                  <AvatarFallback>JD</AvatarFallback>
-                </Avatar>
-                <div>
-                  <h2 className="font-semibold">John Doe</h2>
-                  <p className="text-sm text-gray-500">john@example.com</p>
-                </div>
-              </div>
-            </div>
+            <NavAvatar />
             <nav className="flex-1 p-5 text-lg font-medium">
               <ul className="space-y-2">
                 {navMenuItems.map((item) => {
@@ -74,32 +54,7 @@ export default function MobileNavigation() {
                 })}
               </ul>
             </nav>
-            <div className="p-5 space-y-2">
-              <Button variant="outline" className="w-full justify-start">
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={() => {
-                  signOut(auth)
-                    .then(() => {
-                      user.setAuthenticated(false);
-                      navigate("/login", { replace: true });
-                      console.log("Signed out");
-                    })
-                    .catch((error) => {
-                      if (error instanceof FirebaseError) {
-                        console.log(error);
-                      }
-                    });
-                }}
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign out
-              </Button>
-            </div>
+            <UserActionMenu />
           </aside>
         </SheetContent>
       </Sheet>
