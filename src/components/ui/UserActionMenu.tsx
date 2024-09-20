@@ -1,8 +1,6 @@
 import { useAuth } from "@/contexts/authContext";
 
 import { useNavigate } from "react-router-dom";
-import { auth } from "@/config/firebase";
-import { signOut } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 
 import { Button } from "@/components/ui/button";
@@ -21,13 +19,13 @@ export default function UserActionMenu() {
         variant="outline"
         className="w-full justify-start"
         onClick={() => {
-          signOut(auth)
+          user
+            .signOutHandler()
             .then(() => {
               user.setAuthenticated(false);
               navigate("/login", { replace: true });
-              console.log("Signed out");
             })
-            .catch((error) => {
+            .catch((error: Error) => {
               if (error instanceof FirebaseError) {
                 console.log(error);
               }
