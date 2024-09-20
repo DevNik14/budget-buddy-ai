@@ -1,4 +1,10 @@
-import { onAuthStateChanged, User } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  User,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 import { auth } from "@/config/firebase";
 import {
   createContext,
@@ -16,6 +22,18 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [user, setUser] = useState<User | null>(() => auth.currentUser);
   const [authenticated, setAuthenticated] = useState(false);
 
+  const registerHandler = (email: string, password: string) => {
+    return createUserWithEmailAndPassword(auth, email, password);
+  };
+
+  const loginHandler = (email: string, password: string) => {
+    return signInWithEmailAndPassword(auth, email, password);
+  };
+
+  const signOutHandler = () => {
+    return signOut(auth);
+  };
+
   useEffect(() => {
     const subscriber = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -25,14 +43,22 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       } else {
         setUser(null);
         setAuthenticated(false);
-        navigate("/login", { replace: true });
       }
     });
     return subscriber;
   }, [navigate]);
 
   return (
-    <AuthContext.Provider value={{ user, authenticated, setAuthenticated }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        authenticated,
+        setAuthenticated,
+        registerHandler,
+        loginHandler,
+        signOutHandler,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

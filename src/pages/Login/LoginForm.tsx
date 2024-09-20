@@ -1,9 +1,6 @@
 import { useState, FormEvent } from "react";
 
 import { Link, useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
-
-import { auth } from "@/config/firebase";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +8,7 @@ import { GoolgeSvg } from "@/assets/google";
 import { FirebaseError } from "firebase/app";
 import { formatErrorMessage } from "@/utils/formatErrorMessage";
 import { useAuth } from "@/contexts/authContext";
+import ErrorAuthMessage from "@/components/ui/ErrorAuthMessage";
 
 export default function LoginForm(): React.JSX.Element {
   const user = useAuth();
@@ -37,11 +35,7 @@ export default function LoginForm(): React.JSX.Element {
 
   const loginHandler = async () => {
     try {
-      await signInWithEmailAndPassword(
-        auth,
-        userCredentials.email,
-        userCredentials.password
-      );
+      await user.loginHandler(userCredentials.email, userCredentials.password);
       user.setAuthenticated(true);
       navigate("/");
     } catch (error) {
@@ -69,11 +63,7 @@ export default function LoginForm(): React.JSX.Element {
           <div className="bg-[#0047AB]"></div>
           <div className="flex flex-col justify-center items-center h-screen w-full">
             <div className="h-12 mb-4">
-              {error !== "" && (
-                <p className="text-red-500 bg-red-100 px-4 py-2 rounded-md text-sm transition-opacity duration-300 ease-in-out">
-                  {error}
-                </p>
-              )}
+              {error !== "" && <ErrorAuthMessage message={error} />}
             </div>
             <div className="flex flex-col w-4/6 text-center gap-y-3">
               <label htmlFor="email" className="text-left">

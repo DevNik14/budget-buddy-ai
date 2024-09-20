@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GoolgeSvg } from "@/assets/google";
 
-import { useRegister } from "./hooks";
 import { formatErrorMessage } from "@/utils/formatErrorMessage";
+import { useAuth } from "@/contexts/authContext";
+import ErrorAuthMessage from "@/components/ui/ErrorAuthMessage";
 
 type State = {
   doesEmailPassChecks: {
@@ -77,31 +78,32 @@ const reducer = (state: State, action: ACTION) => {
   }
 };
 
+const initialUserInputRequirements: State = {
+  doesEmailPassChecks: {
+    criteria: false,
+    requirementMessage: "email@email.com",
+  },
+  passwordLength: {
+    criteria: false,
+    requirementMessage: "Password needs to be between 6 and 30 characters long",
+  },
+  doesPasswordIncludesUpperCaseLetter: {
+    criteria: false,
+    requirementMessage: "At least 1 capital letter",
+  },
+  doesPasswordIncludesLowerCaseLetter: {
+    criteria: false,
+    requirementMessage: "At least 1 lower case letter",
+  },
+  doesPasswordIncludesADigit: {
+    criteria: false,
+    requirementMessage: "At least 1 digit",
+  },
+};
+
 export default function RegisterForm(): React.JSX.Element {
+  const user = useAuth();
   const navigate = useNavigate();
-  const initialUserInputRequirements: State = {
-    doesEmailPassChecks: {
-      criteria: false,
-      requirementMessage: "email@email.com",
-    },
-    passwordLength: {
-      criteria: false,
-      requirementMessage:
-        "Password needs to be between 6 and 30 characters long",
-    },
-    doesPasswordIncludesUpperCaseLetter: {
-      criteria: false,
-      requirementMessage: "At least 1 capital letter",
-    },
-    doesPasswordIncludesLowerCaseLetter: {
-      criteria: false,
-      requirementMessage: "At least 1 lower case letter",
-    },
-    doesPasswordIncludesADigit: {
-      criteria: false,
-      requirementMessage: "At least 1 digit",
-    },
-  };
   const [message, setMessage] = useState("");
   const [userCredentials, setUserCredentials] = useState({
     email: "",
@@ -233,7 +235,10 @@ export default function RegisterForm(): React.JSX.Element {
 
   const createUserHandler = async () => {
     try {
-      await useRegister(userCredentials.email, userCredentials.password);
+      await user.registerHandler(
+        userCredentials.email,
+        userCredentials.password
+      );
       navigate("/");
     } catch (error) {
       if (error instanceof FirebaseError) {
@@ -252,11 +257,7 @@ export default function RegisterForm(): React.JSX.Element {
           <div className="bg-[#0047AB]"></div>
           <div className="flex flex-col justify-center items-center h-screen w-full ">
             <div className="h-12 mb-4">
-              {error !== "" && (
-                <p className="text-red-500 bg-red-100 px-4 py-2 rounded-md text-sm transition-opacity duration-300 ease-in-out">
-                  {error}
-                </p>
-              )}
+              {error !== "" && <ErrorAuthMessage message={error} />}
             </div>
             <div className="flex flex-col w-4/6 text-center gap-y-3">
               <label htmlFor="email" className="text-left">
