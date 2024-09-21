@@ -4,6 +4,10 @@ import Layout from "./pages/Layout/Layout";
 import DashboardPage from "./pages/Dashboard";
 import LoginForm from "./pages/Login/LoginForm";
 import RegisterForm from "./pages/Register/RegisterForm";
+import TransactionsPage from "./pages/Transactions";
+import BudgetPage from "./pages/Budget";
+import AdvisorPage from "./pages/Advisor";
+import NotFoundPage from "./pages/NotFound";
 
 function App() {
   return (
@@ -13,7 +17,11 @@ function App() {
         <Route path="/register" element={<RegisterForm />} />
         <Route element={<Layout />}>
           <Route path="/" element={<DashboardPage />} />
+          <Route path="/transactions" element={<TransactionsPage />} />
+          <Route path="/budget" element={<BudgetPage />} />
+          <Route path="/advisor" element={<AdvisorPage />} />
         </Route>
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
   );
