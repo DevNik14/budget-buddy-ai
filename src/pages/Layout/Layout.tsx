@@ -1,11 +1,10 @@
 import SideNavigation from "@/components/ui/SideNavigation";
-import { useAuth } from "@/contexts/authContext";
 import { Navigate, Outlet } from "react-router-dom";
 
 export default function Layout() {
-  const auth = useAuth();
+  const userEmail = localStorage.getItem("user");
 
-  if (!auth.user && auth.authenticated) {
+  if (!userEmail) {
     return <Navigate to="/login" replace />;
   }
 

@@ -19,7 +19,7 @@ export const AuthContext = createContext(null as any);
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(() => auth.currentUser);
+  const [user, setUser] = useState<User | null>(null);
   const [authenticated, setAuthenticated] = useState(false);
 
   const registerHandler = (email: string, password: string) => {
@@ -35,18 +35,19 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   };
 
   useEffect(() => {
-    const subscriber = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-        setAuthenticated(true);
-        navigate("/", { replace: true });
+    const subscriber = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        console.log(firebaseUser);
+        setUser(firebaseUser);
+        localStorage.setItem("user", `${firebaseUser.email}`);
+        navigate("/");
       } else {
         setUser(null);
-        setAuthenticated(false);
+        localStorage.removeItem("user");
       }
     });
     return subscriber;
-  }, [navigate]);
+  }, [user]);
 
   return (
     <AuthContext.Provider
