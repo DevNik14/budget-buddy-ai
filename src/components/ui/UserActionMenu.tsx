@@ -22,7 +22,6 @@ export default function UserActionMenu() {
           user
             .signOutHandler()
             .then(() => {
-              user.setAuthenticated(false);
               navigate("/login", { replace: true });
             })
             .catch((error: Error) => {

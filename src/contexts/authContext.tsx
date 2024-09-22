@@ -20,7 +20,6 @@ export const AuthContext = createContext(null as any);
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
-  const [authenticated, setAuthenticated] = useState(false);
 
   const registerHandler = (email: string, password: string) => {
     return createUserWithEmailAndPassword(auth, email, password);
@@ -37,7 +36,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     const subscriber = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        console.log(firebaseUser);
         setUser(firebaseUser);
         localStorage.setItem("user", `${firebaseUser.email}`);
         navigate("/");
@@ -53,8 +51,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     <AuthContext.Provider
       value={{
         user,
-        authenticated,
-        setAuthenticated,
         registerHandler,
         loginHandler,
         signOutHandler,
