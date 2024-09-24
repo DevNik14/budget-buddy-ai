@@ -8,6 +8,7 @@ import TransactionsPage from "./pages/Transactions";
 import BudgetPage from "./pages/Budget";
 import AdvisorPage from "./pages/Advisor";
 import NotFoundPage from "./pages/NotFound";
+import UserSettingsPage from "./pages/UserSettings";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/budget" element={<BudgetPage />} />
           <Route path="/advisor" element={<AdvisorPage />} />
+          <Route path="/settings" element={<UserSettingsPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
