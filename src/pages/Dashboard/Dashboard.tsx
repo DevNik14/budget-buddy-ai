@@ -1,7 +1,25 @@
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 export default function Dashboard() {
   return (
     <main>
       <h1>Dashboard</h1>
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Spending Summary</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[200px] bg-gray-100 flex items-center justify-center">
+            Graph Placeholder
+          </div>
+        </CardContent>
+      </Card>
       <div className="bg-white rounded-xl w-[250px] p-6">
         <p>Total Savings</p>
         <div className="flex justify-between items-center">
