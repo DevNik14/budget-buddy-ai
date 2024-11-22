@@ -20,6 +20,21 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Expenses</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-2">
+            {["Groceries", "Utilities", "Entertainment"].map((expense) => (
+              <li key={expense} className="flex justify-between items-center">
+                <span>{expense}</span>
+                <span>$XX.XX</span>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
       <div className="bg-white rounded-xl w-[250px] p-6">
         <p>Total Savings</p>
         <div className="flex justify-between items-center">
