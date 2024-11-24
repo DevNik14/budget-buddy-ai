@@ -10,6 +10,7 @@ export default function Dashboard() {
   return (
     <main>
       <h1>Dashboard</h1>
+      {/* Spending Summary Graph */}
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Spending Summary</CardTitle>
@@ -20,6 +21,7 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
+      {/* Recent Expenses */}
       <Card>
         <CardHeader>
           <CardTitle>Recent Expenses</CardTitle>
@@ -35,9 +37,12 @@ export default function Dashboard() {
           </ul>
         </CardContent>
       </Card>
-      <div className="bg-white rounded-xl w-[250px] p-6">
-        <p>Total Savings</p>
-        <div className="flex justify-between items-center">
+      {/* Total Savings */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Total Savings</CardTitle>
+        </CardHeader>
+        <CardContent className="flex justify-between items-center">
           <p>4,591 lv</p>
           <svg
             className="w-[50px]"
@@ -58,8 +63,24 @@ export default function Dashboard() {
               d="M24 12a7.417 7.417 0 0 1-12 5.831c1.725-1.358 2.833-3.465 2.833-5.831S13.725 7.527 12 6.169A7.417 7.417 0 0 1 24 12z"
             ></path>
           </svg>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
+      {/* Subscriptions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Subscriptions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-2">
+            {["Netflix", "Spotify", "Gym"].map((sub) => (
+              <li key={sub} className="flex justify-between items-center">
+                <span>{sub}</span>
+                <span>$XX.XX/month</span>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
     </main>
   );
 }
