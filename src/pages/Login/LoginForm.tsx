@@ -1,6 +1,7 @@
-import { useState, FormEvent } from "react";
+import { useState } from "react";
 
 import { Link, useNavigate } from "react-router-dom";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,32 +11,33 @@ import { formatErrorMessage } from "@/utils/formatErrorMessage";
 import { useAuth } from "@/contexts/authContext";
 import ErrorAuthMessage from "@/components/ui/ErrorAuthMessage";
 
+type Inputs = {
+  email: string;
+  password: string;
+};
+
 export default function LoginForm(): React.JSX.Element {
   const user = useAuth();
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
-  const [userCredentials, setUserCredentials] = useState({
-    email: "",
-    password: "",
-  });
   const [error, setError] = useState("");
 
-  const userCredentialsHandler = (e: FormEvent<HTMLInputElement>) => {
-    const { name, value } = e.target as HTMLInputElement;
-
-    setUserCredentials((oldCredentials) => ({
-      ...oldCredentials,
-      [name]: value,
-    }));
-  };
+  const { handleSubmit, control, watch } = useForm<Inputs>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+  const onSubmit: SubmitHandler<Inputs> = (data) => loginHandler(data);
 
   const disableLoginButton = () => {
-    return Object.values(userCredentials).some((val) => val === "");
+    return watch(["email", "password"]).some((val) => val === "");
   };
 
-  const loginHandler = async () => {
+  const loginHandler = async (data: Inputs) => {
+    const { email, password } = data;
     try {
-      await user.loginHandler(userCredentials.email, userCredentials.password);
+      await user.loginHandler(email, password);
       user.setAuthenticated(true);
       navigate("/");
     } catch (error) {
@@ -66,54 +68,58 @@ export default function LoginForm(): React.JSX.Element {
               {error !== "" && <ErrorAuthMessage message={error} />}
             </div>
             <div className="flex flex-col w-4/6 text-center gap-y-3">
-              <label htmlFor="email" className="text-left">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                name="email"
-                value={userCredentials.email}
-                onChange={userCredentialsHandler}
-                placeholder="name@example.com"
-                className="rounded"
-              />
-              <label htmlFor="password" className="text-left">
-                Password
-              </label>
-              <Input
-                id="password"
-                type="password"
-                name="password"
-                value={userCredentials.password}
-                onChange={userCredentialsHandler}
-                placeholder="Password"
-                className="rounded"
-              />
-              <Button
-                className="rounded border-solid border-black"
-                variant="outline"
-                disabled={disableLoginButton()}
-                onClick={loginHandler}
-              >
-                Login in with email
-              </Button>
-              <span>Or continue with</span>
-              {message !== "" && <p>{message}</p>}
-              <Button
-                onClick={googleLoginClickHandler}
-                className="w-full rounded flex justify-items-center"
-                variant="outline"
-              >
-                <GoolgeSvg />
-                <span className="ml-2">Google</span>
-              </Button>
-              <p>
-                Don't have an account?{" "}
-                <strong>
-                  <Link to="/register">Sign up here</Link>
-                </strong>
-              </p>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <label htmlFor="email" className="text-left">
+                  Email
+                </label>
+                <Controller
+                  name="email"
+                  control={control}
+                  render={({ field }) => (
+                    <Input className="rounder" id="email" {...field} />
+                  )}
+                />
+                <label htmlFor="password" className="text-left">
+                  Password
+                </label>
+                <Controller
+                  name="password"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      className="rounder"
+                      type="password"
+                      id="password"
+                      {...field}
+                    />
+                  )}
+                />
+                <Button
+                  className="rounded border-solid border-black"
+                  variant="outline"
+                  aria-disabled={disableLoginButton()}
+                  type="submit"
+                >
+                  Login in with email
+                </Button>
+                <br />
+                <span>Or continue with</span>
+                {message !== "" && <p>{message}</p>}
+                <Button
+                  onClick={googleLoginClickHandler}
+                  className="w-full rounded flex justify-items-center"
+                  variant="outline"
+                >
+                  <GoolgeSvg />
+                  <span className="ml-2">Google</span>
+                </Button>
+                <p>
+                  Don't have an account?{" "}
+                  <strong>
+                    <Link to="/register">Sign up here</Link>
+                  </strong>
+                </p>
+              </form>
             </div>
           </div>
         </div>
