@@ -1,229 +1,39 @@
-import { FormEvent, useEffect, useReducer, useState } from "react";
+import { useState } from "react";
+
+import { useForm, SubmitHandler } from "react-hook-form";
+
 import { Link, useNavigate } from "react-router-dom";
 import { FirebaseError } from "firebase/app";
 
+import { useAuth } from "@/contexts/authContext";
+
+import ErrorAuthMessage from "@/components/ui/ErrorAuthMessage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GoolgeSvg } from "@/assets/google";
 
 import { formatErrorMessage } from "@/utils/formatErrorMessage";
-import { useAuth } from "@/contexts/authContext";
-import ErrorAuthMessage from "@/components/ui/ErrorAuthMessage";
 
-type State = {
-  doesEmailPassChecks: {
-    criteria: boolean;
-    requirementMessage: string;
-  };
-  passwordLength: {
-    criteria: boolean;
-    requirementMessage: string;
-  };
-  doesPasswordIncludesUpperCaseLetter: {
-    criteria: boolean;
-    requirementMessage: string;
-  };
-  doesPasswordIncludesLowerCaseLetter: {
-    criteria: boolean;
-    requirementMessage: string;
-  };
-  doesPasswordIncludesADigit: {
-    criteria: boolean;
-    requirementMessage: string;
-  };
-};
-
-type ACTION = {
-  type: string;
-  payload: boolean;
-  key?: string;
-};
-
-const reducer = (state: State, action: ACTION) => {
-  switch (action.type) {
-    case "VALIDATE_EMAIL":
-      return {
-        ...state,
-        doesEmailPassChecks: {
-          ...state.doesEmailPassChecks,
-          criteria: action.payload,
-        },
-      };
-    case "VALIDATE_PASSWORD_CASE_LETTER":
-      return {
-        ...state,
-        [action.key!]: {
-          ...state[action.key as keyof typeof state],
-          criteria: action.payload,
-        },
-      };
-    case "VALIDATE_PASSWORD_LENGTH":
-      return {
-        ...state,
-        passwordLength: {
-          ...state.passwordLength,
-          criteria: action.payload,
-        },
-      };
-    case "VALIDATE_PASSWORD_FOR_DIGITS":
-      return {
-        ...state,
-        doesPasswordIncludesADigit: {
-          ...state.doesPasswordIncludesADigit,
-          criteria: action.payload,
-        },
-      };
-    default:
-      return state;
-  }
-};
-
-const initialUserInputRequirements: State = {
-  doesEmailPassChecks: {
-    criteria: false,
-    requirementMessage: "email@email.com",
-  },
-  passwordLength: {
-    criteria: false,
-    requirementMessage: "Password needs to be between 6 and 30 characters long",
-  },
-  doesPasswordIncludesUpperCaseLetter: {
-    criteria: false,
-    requirementMessage: "At least 1 capital letter",
-  },
-  doesPasswordIncludesLowerCaseLetter: {
-    criteria: false,
-    requirementMessage: "At least 1 lower case letter",
-  },
-  doesPasswordIncludesADigit: {
-    criteria: false,
-    requirementMessage: "At least 1 digit",
-  },
+type Inputs = {
+  email: string;
+  password: string;
 };
 
 export default function RegisterForm(): React.JSX.Element {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Inputs>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
   const user = useAuth();
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
-  const [userCredentials, setUserCredentials] = useState({
-    email: "",
-    password: "",
-  });
   const [error, setError] = useState("");
-  const [hideEmailRequirmentMessage, setHideEmailRequirmentMessage] =
-    useState(false);
-  const [hidePasswordRequirmentMessage, setHidePasswordRequirmentMessage] =
-    useState(false);
-
-  const [userInputRequirements, dispatch] = useReducer<
-    React.Reducer<State, ACTION>
-  >(reducer, initialUserInputRequirements);
-
-  const disableEmailHintsHandler = () => {
-    if (userInputRequirements.doesEmailPassChecks.criteria)
-      setHideEmailRequirmentMessage(true);
-  };
-
-  const disablePasswordHintsHandler = () => {
-    if (
-      Object.values(userInputRequirements)
-        .slice(1)
-        .every((val) => val.criteria)
-    ) {
-      setHidePasswordRequirmentMessage(true);
-    }
-  };
-
-  useEffect(() => {
-    disableEmailHintsHandler();
-    disablePasswordHintsHandler();
-  }, [userInputRequirements]);
-
-  const toggleRequirmentMessagesHandler = (
-    val: boolean,
-    credential: string
-  ) => {
-    if (credential === "email") {
-      if (hideEmailRequirmentMessage && !val) {
-        setHideEmailRequirmentMessage(false);
-      }
-    } else {
-      if (hidePasswordRequirmentMessage && !val) {
-        setHidePasswordRequirmentMessage(false);
-      }
-    }
-  };
-
-  const validateEmailHandler = (value: string) => {
-    const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/gm;
-    const isEmailValid = emailRegex.test(value);
-    toggleRequirmentMessagesHandler(isEmailValid, "email");
-    dispatch({ type: "VALIDATE_EMAIL", payload: isEmailValid });
-  };
-
-  const validatePasswordCaseHandler = (value: string, letterCase: string) => {
-    const regex = letterCase === "Upper" ? /.*[A-Z].*/ : /.*[a-z].*/;
-    const foundCapitalLetter = regex.test(value);
-    const key =
-      `doesPasswordIncludes${letterCase}CaseLetter` as keyof typeof userInputRequirements;
-    toggleRequirmentMessagesHandler(foundCapitalLetter, "password");
-    dispatch({
-      type: `VALIDATE_PASSWORD_CASE_LETTER`,
-      payload: foundCapitalLetter,
-      key,
-    });
-  };
-
-  const validatePasswordLengthHandler = (value: string) => {
-    const inRange = value.length > 5 && value.length < 31;
-    toggleRequirmentMessagesHandler(inRange, "password");
-    dispatch({ type: "VALIDATE_PASSWORD_LENGTH", payload: inRange });
-  };
-
-  const validatePasswordIncludesDigitHandler = (value: string) => {
-    const hasDigit = /.*[0-9].*/.test(value);
-    toggleRequirmentMessagesHandler(hasDigit, "password");
-    dispatch({
-      type: "VALIDATE_PASSWORD_FOR_DIGITS",
-      payload: hasDigit,
-    });
-  };
-
-  const displayRequirementMessage = (start: number, end?: number) => {
-    return Object.values(userInputRequirements)
-      .slice(start, end)
-      .map((value, i) => (
-        <li
-          key={i}
-          className={value.criteria ? "text-lime-500" : "text-red-500"}
-        >
-          {value.requirementMessage}
-        </li>
-      ));
-  };
-
-  const disableSignUpButtonHandler = () =>
-    !Object.values(userInputRequirements).every((val) => val.criteria);
-
-  const userCredentialsHandler = (e: FormEvent<HTMLInputElement>) => {
-    const { name, value } = e.target as HTMLInputElement;
-    if (name === "email") {
-      validateEmailHandler(value);
-    } else {
-      validatePasswordLengthHandler(value);
-
-      validatePasswordCaseHandler(value, "Upper");
-
-      validatePasswordCaseHandler(value, "Lower");
-
-      validatePasswordIncludesDigitHandler(value);
-    }
-
-    setUserCredentials((oldCredentials) => ({
-      ...oldCredentials,
-      [name]: value,
-    }));
-  };
 
   const googleLoginClickHandler = () => {
     setMessage("Still in development");
@@ -233,99 +43,107 @@ export default function RegisterForm(): React.JSX.Element {
     }, 3000);
   };
 
-  const createUserHandler = async () => {
+  const createUserHandler = async (data: Inputs) => {
+    const { email, password } = data;
     try {
-      await user.registerHandler(
-        userCredentials.email,
-        userCredentials.password
-      );
+      await user.registerHandler(email, password);
       navigate("/");
     } catch (error) {
       if (error instanceof FirebaseError) {
         setError(formatErrorMessage(error));
         setTimeout(() => {
           setError("");
-        }, 3000);
+        }, 5000);
       }
     }
   };
 
+  const submitHandler: SubmitHandler<Inputs> = (data) =>
+    createUserHandler(data);
+
   return (
-    <>
-      <main>
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="bg-[#0047AB]"></div>
-          <div className="flex flex-col justify-center items-center h-screen w-full ">
-            <div className="h-12 mb-4">
-              {error !== "" && <ErrorAuthMessage message={error} />}
-            </div>
-            <div className="flex flex-col w-4/6 text-center gap-y-3">
-              <label htmlFor="email" className="text-left">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                name="email"
-                placeholder="name@example.com"
-                className="rounded"
-                value={userCredentials.email}
-                onChange={userCredentialsHandler}
-              />
-              <ul
-                className={`text-left text-sm text-slate-700 ${
-                  hideEmailRequirmentMessage && `hidden`
-                }`}
-              >
-                {displayRequirementMessage(0, 1)}
-              </ul>
-              <label htmlFor="password" className="text-left">
-                Password
-              </label>
-              <Input
-                id="password"
-                type="password"
-                name="password"
-                placeholder="Password"
-                className="rounded"
-                value={userCredentials.password}
-                onChange={userCredentialsHandler}
-              />
-              <ul
-                className={`text-left text-sm text-slate-700 ${
-                  hidePasswordRequirmentMessage && `hidden`
-                }`}
-              >
-                {displayRequirementMessage(1)}
-              </ul>
+    <div className="grid grid-cols-1 md:grid-cols-2">
+      <div className="bg-[#0047AB]"></div>
+      <div className="flex flex-col justify-center items-center h-screen w-full ">
+        <div className="h-12 mb-4">
+          {error !== "" && <ErrorAuthMessage message={error} />}
+        </div>
+        <div className="flex flex-col w-4/6 gap-y-3">
+          <form onSubmit={handleSubmit(submitHandler)}>
+            <label htmlFor="email" className="text-left">
+              Email
+            </label>
+            <Input
+              className="rounded"
+              type="text"
+              id="email"
+              {...register("email", {
+                pattern: {
+                  value: /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/gm,
+                  message: "Email must be valid",
+                },
+                required: "Must enter an email",
+              })}
+            />
+            {errors.email && (
+              <div className="text-white text-xs flex flex-start mt-[0.25rem]">
+                <div className="py-[0.125rem] px-[0.25rem] bg-red-600 rounded">
+                  {errors.email.message}
+                </div>
+              </div>
+            )}
+            <label htmlFor="password" className="text-left">
+              Password
+            </label>
+            <Input
+              className="rounded"
+              type="password"
+              id="password"
+              {...register("password", {
+                minLength: {
+                  value: 6,
+                  message: "Password must be atleast 6 characters",
+                },
+                required: "Must enter a password",
+              })}
+            />
+            {errors.password && (
+              <div className="text-white text-xs flex flex-start my-[0.25rem]">
+                <div className="py-[0.125rem] px-[0.25rem] bg-red-600 rounded">
+                  {errors.password.message}
+                </div>
+              </div>
+            )}
+            <div className="text-center">
               <Button
-                className="rounded border-solid border-black"
+                className="rounded border-solid border-black  w-full"
                 variant="outline"
-                disabled={disableSignUpButtonHandler()}
-                onClick={createUserHandler}
+                type="submit"
               >
-                Sign up
+                Create account
               </Button>
-              <span>Or continue with</span>
-              {message !== "" && <p>{message}</p>}
-              <Button
-                onClick={googleLoginClickHandler}
-                className="w-full rounded flex justify-items-center"
-                variant="outline"
-              >
-                <GoolgeSvg />
-                <span className="ml-2">Google</span>
-              </Button>
-              <p>
-                Already a user?{" "}
-                <strong>
-                  <Link to="/login">Sign in</Link>
-                </strong>
-              </p>
             </div>
+          </form>
+          <div className="text-center">
+            <span>Or continue with</span>
+          </div>
+          {message !== "" && <p>{message}</p>}
+          <Button
+            onClick={googleLoginClickHandler}
+            className="w-full rounded flex justify-items-center"
+            variant="outline"
+          >
+            <GoolgeSvg />
+            <span className="ml-2">Google</span>
+          </Button>
+          <div className="text-center">
+            Already a user?{" "}
+            <strong>
+              <Link to="/login">Sign in</Link>
+            </strong>
           </div>
         </div>
-      </main>
-    </>
+      </div>
+    </div>
   );
 }
