@@ -7,7 +7,7 @@ import {
 
 export const navMenuItems = [
   { icon: Home, path: "/", name: "Dashboard" },
-  { icon: CreditCard, path: "transactions", name: "Transactions" },
+  { icon: CreditCard, path: "expenses", name: "Expenses" },
   { icon: PiggyBank, path: "budget", name: "Budget" },
   { icon: Bot, path: "advisor", name: "AI Advisor" },
 ];
