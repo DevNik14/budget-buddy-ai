@@ -1,8 +1,13 @@
 import { useForm, SubmitHandler } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/authContext";
+import { addExpense } from "@/services/expenseService";
+import { useEffect } from "react";
 
 type Inputs = {
   amount: string;
@@ -12,10 +17,29 @@ type Inputs = {
   description: string;
 };
 
-// { amount: number; category: string; description: string; date: Date; type: string; }
+const expenseSchema = z.object({
+  amount: z.coerce
+    .number({
+      required_error: "Must enter an amount",
+      invalid_type_error: "Amount must be valid",
+    })
+    .positive(),
+  category: z.string(),
+  date: z.string().date(),
+  description: z.string().optional(),
+  type: z.string(),
+});
 
 export default function ExpenseForm() {
-  const { register, handleSubmit, getValues, watch } = useForm<Inputs>({
+  const { user } = useAuth();
+  const {
+    register,
+    handleSubmit,
+    formState,
+    reset,
+    formState: { errors },
+  } = useForm<Inputs>({
+    resolver: zodResolver(expenseSchema),
     defaultValues: {
       amount: "",
       category: "bills",
@@ -25,12 +49,40 @@ export default function ExpenseForm() {
     },
   });
 
+  useEffect(() => {
+    if (formState.isSubmitSuccessful) {
+      reset({
+        amount: "",
+        category: "bills",
+        date: "",
+        type: "monthly",
+        description: "",
+      });
+    }
+  }, [formState, reset]);
+
+  const disableDateHandler = () => {
+    let month = (new Date().getMonth() + 1).toString();
+    const today = new Date().getDate();
+    const year = new Date().getFullYear();
+    month = month.length < 2 ? `0${month}` : month;
+
+    return `${year}-${month}-${today}`;
+  };
+
+  const onSubmut: SubmitHandler<Inputs> = (formData) => {
+    const formValues = structuredClone(formData);
+    addExpense(user.uid, formValues);
+  };
   return (
-    <form>
+    <form onSubmit={handleSubmit(onSubmut)}>
       <div>
         <div>
           <Label htmlFor="amount">Amount*</Label>
           <Input id="amount" {...register("amount")} />
+          {errors.amount && (
+            <p className="bg-red-600 text-white">{errors.amount.message}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="category">Category*</Label>
@@ -41,11 +93,15 @@ export default function ExpenseForm() {
         </div>
         <div>
           <Label htmlFor="date">Date*</Label>
-          <Input id="date" type="date" {...register("date")} />
-        </div>
-        <div>
-          <Label htmlFor="type">Type*</Label>
-          <Input id="type" {...register("type")} />
+          <Input
+            id="date"
+            type="date"
+            {...register("date", { required: true })}
+            max={disableDateHandler()}
+          />
+          {errors.date && (
+            <p className="bg-red-600 text-white">Must select a date</p>
+          )}
         </div>
         <div>
           <Label htmlFor="description">Description</Label>
@@ -58,15 +114,7 @@ export default function ExpenseForm() {
           </select>
         </div>
       </div>
-      <Button
-        type="submit"
-        onClick={(e) => {
-          e.preventDefault();
-          console.log(getValues());
-        }}
-      >
-        Save
-      </Button>
+      <Button type="submit">Save</Button>
     </form>
   );
 }

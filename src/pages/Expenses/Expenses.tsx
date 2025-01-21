@@ -10,9 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Link } from "react-router-dom";
 
-// { amount: number; category: string; description: string; date: Date; type: string; }
-
-type Expense = {
+export type Expense = {
   amount: string;
   category: string;
   description: string;
@@ -23,49 +21,49 @@ type Expense = {
 export default function Expenses() {
   const [expenses, setExpenses] = useState<Array<Expense>>([
     {
-      amount: "20.00",
+      amount: "20",
       category: "Groceries",
       description: "Weekly food",
       date: "16-01-2025",
       type: "One-Time",
     },
     {
-      amount: "20.00",
+      amount: "20",
       category: "Groceries",
       description: "Weekly food",
       date: "09-01-2025",
       type: "One-Time",
     },
     {
-      amount: "20.69",
+      amount: "20",
       category: "Bills",
       description: "Internet",
       date: "12-01-2025",
       type: "Monthly",
     },
     {
-      amount: "60.00",
+      amount: "60",
       category: "Bills",
       description: "Electricity",
       date: "15-01-2025",
       type: "Monthly",
     },
     {
-      amount: "26.00",
+      amount: "26",
       category: "Bills",
       description: "Water",
       date: "15-01-2025",
       type: "Monthly",
     },
     {
-      amount: "9.00",
+      amount: "9",
       category: "Bills",
       description: "Phone",
       date: "02-01-2025",
       type: "Monthly",
     },
     {
-      amount: "22.36",
+      amount: "22",
       category: "Fun",
       description: "Goods",
       date: "14-01-2025",
