@@ -1,13 +1,15 @@
+import { useEffect } from "react";
+
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Timestamp } from "firebase/firestore";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/authContext";
 import { addExpense } from "@/services/expenseService";
-import { useEffect } from "react";
 
 type Inputs = {
   amount: string;
@@ -35,6 +37,7 @@ export default function ExpenseForm() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState,
     reset,
     formState: { errors },
@@ -72,7 +75,10 @@ export default function ExpenseForm() {
 
   const onSubmut: SubmitHandler<Inputs> = (formData) => {
     const formValues = structuredClone(formData);
-    addExpense(user.uid, formValues);
+
+    const date = Timestamp.fromDate(new Date(formValues["date"]));
+
+    addExpense({ ...formValues, date: date });
   };
   return (
     <form onSubmit={handleSubmit(onSubmut)}>

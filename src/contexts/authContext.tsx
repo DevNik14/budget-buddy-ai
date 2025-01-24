@@ -38,10 +38,12 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       if (firebaseUser) {
         setUser(firebaseUser);
         localStorage.setItem("user", `${firebaseUser.email}`);
+        localStorage.setItem("uid", `${firebaseUser.uid}`);
         navigate("/");
       } else {
         setUser(null);
         localStorage.removeItem("user");
+        localStorage.removeItem("uid");
       }
     });
     return subscriber;
