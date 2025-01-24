@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Table,
@@ -9,103 +9,115 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Link } from "react-router-dom";
+import { Timestamp } from "firebase/firestore";
+
+import { getExpenses } from "@/services/expenseService";
+import OrderBy from "./OrderBy";
 
 export type Expense = {
   amount: string;
   category: string;
   description: string;
-  date: string;
-  type: string;
+  date: Timestamp | string | Date;
+  type?: string;
+  docId?: string;
+  uid?: string;
+};
+
+const tableHeads = [
+  "amount",
+  "category",
+  "description",
+  "date",
+  "type",
+] as const;
+
+const formatDate = (date: Timestamp | string | Date): string => {
+  if (date instanceof Timestamp) {
+    return new Date(date.seconds * 1000).toLocaleDateString();
+  }
+  if (date instanceof Date) {
+    return date.toLocaleDateString();
+  }
+  return date;
 };
 
 export default function Expenses() {
-  const [expenses, setExpenses] = useState<Array<Expense>>([
-    {
-      amount: "20",
-      category: "Groceries",
-      description: "Weekly food",
-      date: "16-01-2025",
-      type: "One-Time",
-    },
-    {
-      amount: "20",
-      category: "Groceries",
-      description: "Weekly food",
-      date: "09-01-2025",
-      type: "One-Time",
-    },
-    {
-      amount: "20",
-      category: "Bills",
-      description: "Internet",
-      date: "12-01-2025",
-      type: "Monthly",
-    },
-    {
-      amount: "60",
-      category: "Bills",
-      description: "Electricity",
-      date: "15-01-2025",
-      type: "Monthly",
-    },
-    {
-      amount: "26",
-      category: "Bills",
-      description: "Water",
-      date: "15-01-2025",
-      type: "Monthly",
-    },
-    {
-      amount: "9",
-      category: "Bills",
-      description: "Phone",
-      date: "02-01-2025",
-      type: "Monthly",
-    },
-    {
-      amount: "22",
-      category: "Fun",
-      description: "Goods",
-      date: "14-01-2025",
-      type: "One-Time",
-    },
-  ]);
+  const [expenses, setExpenses] = useState<Array<Expense> | null>(null);
+
+  const orderByExpenseHandler = async (value: string) => {
+    const [type, order] = value.split(": ") as [string, "asc" | "desc"];
+    const data = await getExpenses(type, order);
+    if (data) {
+      setExpenses(data.map(formatExpense));
+    }
+  };
+
+  const formatExpense = (expense: Expense & { docId: string }): Expense => ({
+    amount: expense.amount?.toString() ?? "",
+    category: expense.category?.toString() ?? "",
+    description: expense.description?.toString() ?? "",
+    date: formatDate(expense.date),
+    type: expense.type?.toString() ?? "",
+  });
+
+  useEffect(() => {
+    getExpenses("date", "desc").then((data) => {
+      if (data) {
+        setExpenses(data.map(formatExpense));
+      }
+    });
+  }, []);
 
   return (
     <main className="flex-1 p-4 lg:p-8">
       <header>
         <div>
-          <h1>Expenses</h1>
+          <div>
+            <h1>Expenses</h1>
+          </div>
+          <div>
+            <Link to="/expenses/add">+ New expense</Link>
+          </div>
         </div>
         <div>
-          <Link to="/expenses/add">+ New expense</Link>
+          <div>Order by: </div>
+          <div>
+            <OrderBy orderByExpenseHandler={orderByExpenseHandler} />
+          </div>
         </div>
       </header>
       <section>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {Object.keys(expenses[0]).map((key) => {
+        {expenses ? (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {tableHeads.map((th) => {
+                  return (
+                    <TableHead key={th} className={`capitalize`}>
+                      {th}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {expenses.map((expense, i) => {
                 return (
-                  <TableHead key={key} className={`capitalize`}>
-                    {key}
-                  </TableHead>
+                  <TableRow key={i}>
+                    {tableHeads.map((key) => (
+                      <TableCell key={key}>
+                        {expense[key]?.toString()}
+                      </TableCell>
+                    ))}
+                  </TableRow>
                 );
               })}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {expenses.map((expense, i) => {
-              return (
-                <TableRow key={i}>
-                  {Object.values(expense).map((value, i) => {
-                    return <TableCell key={i}>{value}</TableCell>;
-                  })}
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+            </TableBody>
+          </Table>
+        ) : (
+          <h2>No expenses found</h2>
+        )}
       </section>
     </main>
   );
