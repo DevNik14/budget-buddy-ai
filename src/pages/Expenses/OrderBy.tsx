@@ -14,15 +14,23 @@ export default function OrderBy({
 }) {
   return (
     <Select onValueChange={orderByExpenseHandler}>
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-[180px] rounded">
         <SelectValue placeholder="Date: Newest" />
       </SelectTrigger>
       <SelectContent className="bg-slate-50">
         <SelectGroup>
-          <SelectItem value="amount: asc">Amount: Low to High</SelectItem>
-          <SelectItem value="amount: desc">Amount: High to Low</SelectItem>
-          <SelectItem value="date: asc">Date: Oldest</SelectItem>
-          <SelectItem value="date: desc">Date: Newest</SelectItem>
+          <SelectItem className="cursor-pointer" value="amount: asc">
+            Amount: Low to High
+          </SelectItem>
+          <SelectItem className="cursor-pointer" value="amount: desc">
+            Amount: High to Low
+          </SelectItem>
+          <SelectItem className="cursor-pointer" value="date: asc">
+            Date: Oldest
+          </SelectItem>
+          <SelectItem className="hursor-pointer" value="date: desc">
+            Date: Newest
+          </SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>

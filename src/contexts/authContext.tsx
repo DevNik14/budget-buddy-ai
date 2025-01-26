@@ -42,8 +42,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         navigate("/");
       } else {
         setUser(null);
-        localStorage.removeItem("user");
-        localStorage.removeItem("uid");
+        localStorage.clear();
       }
     });
     return subscriber;

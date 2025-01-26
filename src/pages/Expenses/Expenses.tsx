@@ -1,18 +1,12 @@
 import { useEffect, useState } from "react";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import OrderBy from "./OrderBy";
+
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { getExpenses } from "@/services/expenseService";
+
 import { Link } from "react-router-dom";
 import { Timestamp } from "firebase/firestore";
-
-import { getExpenses } from "@/services/expenseService";
-import OrderBy from "./OrderBy";
 
 export type Expense = {
   amount: string;
@@ -27,8 +21,8 @@ export type Expense = {
 const tableHeads = [
   "amount",
   "category",
-  "description",
   "date",
+  "description",
   "type",
 ] as const;
 
@@ -43,7 +37,9 @@ const formatDate = (date: Timestamp | string | Date): string => {
 };
 
 export default function Expenses() {
+  const isScreenSmall = useMediaQuery("(max-width: 768px)");
   const [expenses, setExpenses] = useState<Array<Expense> | null>(null);
+  const [mobile, setMobile] = useState(() => isScreenSmall.matches);
 
   const orderByExpenseHandler = async (value: string) => {
     const [type, order] = value.split(": ") as [string, "asc" | "desc"];
@@ -61,6 +57,10 @@ export default function Expenses() {
     type: expense.type?.toString() ?? "",
   });
 
+  const hideExpensePropElementhandler = (propIdx: number) => {
+    return mobile && propIdx >= 3 ? "hidden" : "";
+  };
+
   useEffect(() => {
     getExpenses("date", "desc").then((data) => {
       if (data) {
@@ -69,19 +69,25 @@ export default function Expenses() {
     });
   }, []);
 
+  useEffect(() => {
+    isScreenSmall.addEventListener("change", (e) => {
+      setMobile(e.matches);
+    });
+  }, []);
+
   return (
-    <main className="flex-1 p-4 lg:p-8">
-      <header>
-        <div>
+    <>
+      <header className="grid gap-y-5 mb-5">
+        <div className="flex justify-between items-center">
           <div>
-            <h1>Expenses</h1>
+            <h1 className="text-3xl font-bold">Expenses</h1>
           </div>
-          <div>
+          <div className="bg-slate-300 px-4 py-2 rounded">
             <Link to="/expenses/add">+ New expense</Link>
           </div>
         </div>
-        <div>
-          <div>Order by: </div>
+        <div className="flex items-center">
+          <div className="mr-1.5">Order by: </div>
           <div>
             <OrderBy orderByExpenseHandler={orderByExpenseHandler} />
           </div>
@@ -89,36 +95,40 @@ export default function Expenses() {
       </header>
       <section>
         {expenses ? (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {tableHeads.map((th) => {
-                  return (
-                    <TableHead key={th} className={`capitalize`}>
-                      {th}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <div className="text-center">
+            <div className="hidden md:grid grid-cols-5 p-4 font-bold">
+              {tableHeads.map((th) => (
+                <div key={th} className="uppercase">
+                  {th}
+                </div>
+              ))}
+            </div>
+            <div>
               {expenses.map((expense, i) => {
                 return (
-                  <TableRow key={i}>
-                    {tableHeads.map((key) => (
-                      <TableCell key={key}>
+                  <div
+                    key={i}
+                    className={`${
+                      i % 2 === 0 && "bg-slate-300"
+                    } grid grid-cols-3 md:grid-cols-5 p-4 rounded`}
+                  >
+                    {tableHeads.map((key, i) => (
+                      <div
+                        key={key}
+                        className={`${hideExpensePropElementhandler(i)}`}
+                      >
                         {expense[key]?.toString()}
-                      </TableCell>
+                      </div>
                     ))}
-                  </TableRow>
+                  </div>
                 );
               })}
-            </TableBody>
-          </Table>
+            </div>
+          </div>
         ) : (
           <h2>No expenses found</h2>
         )}
       </section>
-    </main>
+    </>
   );
 }
