@@ -11,7 +11,9 @@ export default function Layout() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
       <SideNavigation />
-      <Outlet />
+      <main className="flex-1 p-4 lg:p-8">
+        <Outlet />
+      </main>
     </div>
   );
 }

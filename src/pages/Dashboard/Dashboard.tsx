@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Dashboard() {
   return (
-    <main className="flex-1 p-4 lg:p-8">
+    <>
       <h1>Dashboard</h1>
       {/* Spending Summary Graph */}
       <Card className="mb-6">
@@ -77,6 +77,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-    </main>
+    </>
   );
 }
