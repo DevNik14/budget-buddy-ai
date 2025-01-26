@@ -1,12 +1,12 @@
 import { db } from "@/config/firebase";
-import { collection, addDoc, getDocs, where, query, orderBy } from "firebase/firestore";
+import { collection, addDoc, getDocs, where, query, orderBy, Timestamp } from "firebase/firestore";
 
 interface Expense {
   amount: string;
   category: string;
   description: string;
-  date: string | Date;
-  uid: string;
+  date: string | Date | Timestamp;
+  uid?: string;
   [key: string]: any;
 }
 
