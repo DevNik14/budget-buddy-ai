@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import MonthlySpendingLimit from "./MonthlySpendingLimit/MonthlySpendingLimit";
 
 export default function Dashboard() {
   return (
@@ -17,6 +18,7 @@ export default function Dashboard() {
       </Card>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Recent Expenses */}
+        <MonthlySpendingLimit />
         <Card>
           <CardHeader>
             <CardTitle>Recent Expenses</CardTitle>
