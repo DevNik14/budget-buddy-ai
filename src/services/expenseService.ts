@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { collection, addDoc, getDocs, where, query, orderBy, Timestamp } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, orderBy, Timestamp } from "firebase/firestore";
 
 interface Expense {
   amount: string;
@@ -15,13 +15,13 @@ export type DirectionOrder = "asc" | "desc";
 const userId = localStorage.getItem("uid");
 
 export const addExpense = async (expense: Expense) => {
-  const response = await addDoc(collection(db, "expenses"),
+  const response = await addDoc(collection(db, "users", userId as string, "expenses"),
     { ...expense, uid: userId }
   )
 }
 
 export const getExpenses = async (type: string, order: DirectionOrder): Promise<(Expense & { docId: string })[] | null> => {
-  const q = query(collection(db, "expenses"), orderBy(type, order), where("uid", "==", userId))
+  const q = query(collection(db, "users", userId as string, "expenses"), orderBy(type, order))
   const querySnapshot = await getDocs(q)
     .then(snapshot => {
       if (snapshot.docs.length > 0) {
