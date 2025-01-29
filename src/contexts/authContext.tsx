@@ -5,7 +5,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, FirestoreError } from "firebase/firestore";
 import { auth, db } from "@/config/firebase";
 import {
   createContext,
@@ -23,25 +23,21 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [user, setUser] = useState<User | null>(null);
 
   const registerHandler = async (email: string, password: string) => {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const user = userCredential.user;
 
-      await setDoc(doc(db, "users", user.uid), {
-        email: user.email,
-        budget: {
-          total: 0,
-          monthlyLimit: 0,
-        },
-      });
-      return user;
-    } catch (error) {
-      console.log(error);
-    }
+    await setDoc(doc(db, "users", user.uid), {
+      email: user.email,
+      budget: {
+        total: 0,
+        monthlyLimit: 0,
+      },
+    });
+    return userCredential;
   };
 
   const loginHandler = (email: string, password: string) => {
