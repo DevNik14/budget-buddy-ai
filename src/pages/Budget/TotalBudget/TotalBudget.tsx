@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 export type UserBudget = {
   budget: {
     total: number | string;
-    monthlyLimit: number | string;
+    monthlyLimit: number;
   };
 };
 
@@ -71,7 +71,7 @@ export default function TotalBudget() {
     const totalBudget = async () =>
       setUserBudget(await getTotalBudgetHandler(userId as string));
     totalBudget();
-  }, []);
+  }, [userId]);
 
   return (
     <>

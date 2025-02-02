@@ -36,3 +36,42 @@ export const setTotalBudgetHandler = async (userId: string, budgetValue: string 
     return null;
   }
 }
+
+export const getMonthlySpendingLimit = async (userId: string): Promise<number | null> => {
+  const userRef = doc(db, "users", userId as string);
+  try {
+    const spendingLimit = await runTransaction(db, async (transaction) => {
+      const spendingLimitDoc = await transaction.get(userRef);
+      if (!spendingLimitDoc.exists()) {
+        throw new Error;
+      }
+      return spendingLimitDoc.data() as UserBudget;
+    })
+    return spendingLimit.budget.monthlyLimit;
+  } catch (error) {
+    return null;
+  }
+}
+
+export const setMonthlyLimitHandler = async (userId: string, newMonthlyLimit: number): Promise<number | null> => {
+  const userRef = doc(db, "users", userId as string);
+  try {
+    const usersMonthlyLimit = await runTransaction(
+      db,
+      async (transaction) => {
+        const { budget } = (
+          await transaction.get(userRef)
+        ).data() as UserBudget;
+        const newLimit = (budget.monthlyLimit = newMonthlyLimit);
+        transaction.update(userRef, {
+          budget: { ...budget, monthlyLimit: newLimit },
+        });
+        return newLimit;
+      }
+    );
+    return usersMonthlyLimit;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}

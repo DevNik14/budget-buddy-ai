@@ -50,6 +50,7 @@ const expenseSchema = z.object({
 });
 
 export default function ExpenseForm() {
+  const userId = localStorage.getItem("uid");
   const {
     register,
     setValue,
@@ -86,7 +87,7 @@ export default function ExpenseForm() {
 
     const date = Timestamp.fromDate(new Date(formValues["date"]));
 
-    addExpense({ ...formValues, date: date });
+    addExpense(userId as string, { ...formValues, date: date });
   };
   return (
     <form onSubmit={handleSubmit(onSubmut)}>
