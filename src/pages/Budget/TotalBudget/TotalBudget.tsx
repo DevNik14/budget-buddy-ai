@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 export type UserBudget = {
   budget: {
     total: number | string;
-    monthlyLimit: number | string;
+    monthlyLimit: number;
   };
 };
 
@@ -71,11 +71,11 @@ export default function TotalBudget() {
     const totalBudget = async () =>
       setUserBudget(await getTotalBudgetHandler(userId as string));
     totalBudget();
-  }, []);
+  }, [userId]);
 
   return (
     <>
-      <Card className="max-w-[350px]">
+      <Card className="rounded">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             {userBudget ? (
@@ -85,7 +85,7 @@ export default function TotalBudget() {
             )}
           </CardTitle>
 
-          <CardDescription>Set and Adjust Your Total Budget</CardDescription>
+          <CardDescription>Set and adjust Your total budget</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>

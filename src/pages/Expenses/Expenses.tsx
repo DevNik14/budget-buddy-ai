@@ -37,13 +37,14 @@ const formatDate = (date: Timestamp | string | Date): string => {
 };
 
 export default function Expenses() {
+  const userId = localStorage.getItem("uid");
   const isScreenSmall = useMediaQuery("(max-width: 768px)");
   const [expenses, setExpenses] = useState<Array<Expense> | null>(null);
   const [mobile, setMobile] = useState(() => isScreenSmall.matches);
 
   const orderByExpenseHandler = async (value: string) => {
     const [type, order] = value.split(": ") as [string, "asc" | "desc"];
-    const data = await getExpenses(type, order);
+    const data = await getExpenses(userId as string, type, order);
     if (data) {
       setExpenses(data.map(formatExpense));
     }
@@ -62,12 +63,12 @@ export default function Expenses() {
   };
 
   useEffect(() => {
-    getExpenses("date", "desc").then((data) => {
+    getExpenses(userId as string, "date", "desc").then((data) => {
       if (data) {
         setExpenses(data.map(formatExpense));
       }
     });
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     isScreenSmall.addEventListener("change", (e) => {
