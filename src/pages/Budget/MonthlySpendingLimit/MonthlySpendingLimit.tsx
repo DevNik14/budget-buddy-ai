@@ -63,8 +63,6 @@ export default function MonthlySpendingLimit() {
   }, [formState, reset]);
 
   useEffect(() => {
-    const today = Timestamp.fromDate(new Date());
-
     const year = new Date().getFullYear();
     const month = new Date().getMonth() + 1;
     const currentMonthDate = Timestamp.fromDate(
@@ -73,11 +71,7 @@ export default function MonthlySpendingLimit() {
 
     const monthlyBudget = Promise.all([
       getMonthlySpendingLimit(userId as string),
-      getExpensesForTheCurrentMonthHandler(
-        userId as string,
-        currentMonthDate,
-        today
-      ),
+      getExpensesForTheCurrentMonthHandler(userId as string, currentMonthDate),
     ]).then((data) => {
       const [monthlySpendingLimit, currentMonthSpending] = data;
       setMonthlySpendingLimit(monthlySpendingLimit);

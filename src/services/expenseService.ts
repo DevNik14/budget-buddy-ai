@@ -1,5 +1,5 @@
 import { db } from "@/config/firebase";
-import { collection, addDoc, getDocs, query, orderBy, Timestamp, where, sum, getAggregateFromServer } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, orderBy, Timestamp, where, sum, getAggregateFromServer, FirestoreError } from "firebase/firestore";
 
 interface Expense {
   amount: string;
@@ -35,15 +35,15 @@ export const getExpenses = async (userId: string, type: string, order: Direction
   return querySnapshot
 }
 
-export const getExpensesForTheCurrentMonthHandler = async (userId: string, fromDate: Timestamp, toDate: Timestamp) => {
-  const q = query(collection(db, "users", userId as string, "expenses"), where("date", ">=", fromDate), where("date", "<=", toDate))
+export const getExpensesForTheCurrentMonthHandler = async (userId: string, fromDate: Timestamp) => {
+  const q = query(collection(db, "users", userId as string, "expenses"), where("date", ">=", fromDate))
   const querySnapshot = await getAggregateFromServer(q, {
     totalExpenses: sum("amount")
   })
     .then(snap => snap.data().totalExpenses)
     .catch(e => {
       console.log(e);
-      return null;
+      return 0;
     })
   return querySnapshot
 }
