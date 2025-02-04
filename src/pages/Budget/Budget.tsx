@@ -1,4 +1,5 @@
 import MonthlySpendingLimit from "./MonthlySpendingLimit/MonthlySpendingLimit";
+import RecentExpenses from "./RecentExpenses/RecentExpenses";
 import TotalBudget from "./TotalBudget/TotalBudget";
 
 export default function Budget() {
@@ -13,7 +14,9 @@ export default function Budget() {
             <TotalBudget />
             <MonthlySpendingLimit />
           </div>
-          <div className="lg:col-span-2 md:col-span-1"></div>
+          <div className="lg:col-span-2 md:col-span-1">
+            <RecentExpenses />
+          </div>
         </div>
       </section>
     </>

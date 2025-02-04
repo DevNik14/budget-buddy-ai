@@ -1,5 +1,6 @@
 import { db } from "@/config/firebase";
-import { collection, addDoc, getDocs, query, orderBy, Timestamp, where, sum, getAggregateFromServer, FirestoreError } from "firebase/firestore";
+import { FirebaseError } from "firebase/app";
+import { collection, addDoc, getDocs, query, orderBy, Timestamp, where, sum, getAggregateFromServer, limit } from "firebase/firestore";
 
 interface Expense {
   amount: string;
@@ -46,4 +47,19 @@ export const getExpensesForTheCurrentMonthHandler = async (userId: string, fromD
       return 0;
     })
   return querySnapshot
+}
+
+export const getRecentExpenses = async (userId: string) => {
+  try {
+    const q = query(collection(db, "users", userId, "expenses"), limit(10))
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.docs.length > 0) {
+      return querySnapshot.docs.map(doc => ({ ...doc.data() as Expense, docId: doc.id }))
+    } else {
+      throw new FirebaseError('not-found', "No recent expenses!");
+    }
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
 }
