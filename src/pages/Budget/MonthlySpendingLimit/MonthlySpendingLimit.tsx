@@ -69,7 +69,7 @@ export default function MonthlySpendingLimit() {
       new Date(`${year}-${month}-01`)
     );
 
-    const monthlyBudget = Promise.all([
+    Promise.all([
       getMonthlySpendingLimit(userId as string),
       getExpensesForTheCurrentMonthHandler(userId as string, currentMonthDate),
     ]).then((data) => {
@@ -90,8 +90,7 @@ export default function MonthlySpendingLimit() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-2">
-            <div className="flex justify-between text-sm">
-              <p>Monthly spending limit</p>
+            <div className="flex justify-end text-sm">
               <p>
                 lv. {currentSpendings} / {monthlySpendingLimit}
               </p>
@@ -101,7 +100,7 @@ export default function MonthlySpendingLimit() {
               value={calculateSpendingLimitInPercentageHandler()}
             />
           </div>
-          <div className="max-w-[350px] mt-[5px]">
+          <div className="mt-[5px]">
             <form onSubmit={handleSubmit(obSubmit)}>
               <div className="grid gap-2">
                 <Input {...register("limitValue")} />
