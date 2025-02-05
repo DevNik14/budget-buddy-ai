@@ -77,7 +77,7 @@ export default function TotalBudget() {
     <>
       <Card className="rounded">
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex items-center justify-between font-bold tracking-tight text-base">
             {userBudget ? (
               <span>{`Total Budget: ${userBudget} lv.`}</span>
             ) : (
@@ -85,7 +85,9 @@ export default function TotalBudget() {
             )}
           </CardTitle>
 
-          <CardDescription>Set and adjust Your total budget</CardDescription>
+          <CardDescription className="text-sm text-muted-foreground">
+            Set and adjust Your total budget
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>

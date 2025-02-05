@@ -14,7 +14,7 @@ export default function Budget() {
             <TotalBudget />
             <MonthlySpendingLimit />
           </div>
-          <div className="lg:col-span-2 md:col-span-1">
+          <div className="lg:col-span-2 md:col-span-2">
             <RecentExpenses />
           </div>
         </div>

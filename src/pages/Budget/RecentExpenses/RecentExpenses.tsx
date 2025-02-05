@@ -1,5 +1,6 @@
-import LoadingSpinner from "@/components/ui/LoadingSpinnerProps";
 import { getRecentExpenses } from "@/services/expenseService";
+
+import LoadingSpinner from "@/components/ui/LoadingSpinnerProps";
 import { useQuery } from "@tanstack/react-query";
 
 export default function RecentExpenses() {

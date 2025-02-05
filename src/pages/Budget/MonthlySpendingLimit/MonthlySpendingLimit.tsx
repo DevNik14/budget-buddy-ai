@@ -83,8 +83,10 @@ export default function MonthlySpendingLimit() {
     <>
       <Card className="rounded">
         <CardHeader>
-          <CardTitle>Monthly Budget</CardTitle>
-          <CardDescription>
+          <CardTitle className="font-bold tracking-tight text-base">
+            Monthly Budget
+          </CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">
             Set and adjust your monthly spending limit
           </CardDescription>
         </CardHeader>
