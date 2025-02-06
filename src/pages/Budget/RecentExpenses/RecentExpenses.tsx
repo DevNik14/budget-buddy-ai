@@ -15,12 +15,7 @@ export default function RecentExpenses() {
   }
 
   if (isPending) {
-    return (
-      <div className="h-full flex flex-col items-center justify-center">
-        <LoadingSpinner />
-        <p>Loading...</p>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
