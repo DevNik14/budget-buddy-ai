@@ -8,12 +8,12 @@ import {
 } from "@/components/ui/select";
 
 export default function OrderBy({
-  orderByExpenseHandler,
+  ordersByHandler,
 }: {
-  orderByExpenseHandler: (value: string) => void;
+  ordersByHandler: (value: string) => void;
 }) {
   return (
-    <Select onValueChange={orderByExpenseHandler}>
+    <Select onValueChange={ordersByHandler}>
       <SelectTrigger className="w-[180px] rounded">
         <SelectValue placeholder="Date: Newest" />
       </SelectTrigger>

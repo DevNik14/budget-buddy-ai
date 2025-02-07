@@ -20,12 +20,12 @@ export default function ExpenseListItem({
       className="grid grid-cols-3 md:grid-cols-5 text-center py-4 border-t capitalize"
     >
       <span>{category}</span>
-      <span>{amount}</span>
+      <span>{amount} lv.</span>
       <span>{formatDate(date)}</span>
       <span
         className={`${
-          isDescriptionEmpty(description) && ""
-        } text-slate-500 hidden md:block`}
+          isDescriptionEmpty(description) && "text-slate-500"
+        } hidden md:block`}
       >
         {isDescriptionEmpty(description) ? "Optional" : description}
       </span>

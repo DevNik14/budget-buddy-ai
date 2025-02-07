@@ -12,11 +12,17 @@ const tableHeads = [
   "docId",
 ] as const;
 
-export default function ExpensesList() {
+export default function ExpensesList({
+  type,
+  order,
+}: {
+  type: string;
+  order: "asc" | "desc";
+}) {
   const userId = localStorage.getItem("uid");
   const { isError, isPending, data, error } = useQuery({
-    queryKey: ["recentExpenses", userId],
-    queryFn: () => getExpenses(userId as string, "date", "desc"),
+    queryKey: ["recentExpenses", type, order, userId],
+    queryFn: () => getExpenses(userId as string, type, order),
   });
 
   if (isError) {
@@ -33,7 +39,7 @@ export default function ExpensesList() {
         {tableHeads.map((th, i) => th !== "docId" && <div key={i}>{th}</div>)}
       </header>
       {data.map((expense, i) => {
-        return <ExpenseListItem {...expense} i={i} />;
+        return <ExpenseListItem key={i} {...expense} i={i} />;
       })}
     </ul>
   );
