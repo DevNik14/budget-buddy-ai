@@ -11,7 +11,8 @@ export default function ExpenseListItem({
   docId,
   i,
 }: Expense & { i: number }) {
-  const expenseItemRef = useRef(docId);
+  const expenseItemRef = useRef<string | undefined>(undefined);
+  expenseItemRef.current = docId;
   const isDescriptionEmpty = (desc: string) => desc === "";
 
   return (

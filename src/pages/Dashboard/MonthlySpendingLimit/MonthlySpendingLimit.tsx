@@ -1,9 +1,8 @@
 import { Progress } from "@/components/ui/progress";
-import { useState } from "react";
 
 export default function MonthlySpendingLimit() {
-  const [monthlySpendingLimit, setSpendingLimit] = useState(300);
-  const [currentSpendings, setCurrentSpendings] = useState(100);
+  const monthlySpendingLimit = 300;
+  const currentSpendings = 100;
 
   const calculateSpendingLimitInPercentageHandler = () => {
     return (currentSpendings / monthlySpendingLimit) * 100;
