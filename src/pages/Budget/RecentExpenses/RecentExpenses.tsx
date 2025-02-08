@@ -1,9 +1,9 @@
-import ExpensesList from "@/pages/Expenses/ExpensesList";
+import RecentExpensesList from "./RecentExpensesList";
 
 export default function RecentExpenses() {
   return (
     <>
-      <ExpensesList type="date" order="asc" />
+      <RecentExpensesList />
     </>
   );
 }
