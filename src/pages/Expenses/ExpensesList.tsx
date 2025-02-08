@@ -21,7 +21,7 @@ export default function ExpensesList({
 }) {
   const userId = localStorage.getItem("uid");
   const { isError, isPending, data, error } = useQuery({
-    queryKey: ["recentExpenses", type, order, userId],
+    queryKey: ["expenses", type, order, userId],
     queryFn: () => getExpenses(userId as string, type, order),
   });
 
