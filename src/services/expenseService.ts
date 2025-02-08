@@ -42,7 +42,7 @@ export const getExpensesForTheCurrentMonthHandler = async (userId: string, fromD
 
 export const getRecentExpenses = async (userId: string) => {
   try {
-    const q = query(collection(db, "users", userId, "expenses"), limit(10))
+    const q = query(collection(db, "users", userId, "expenses"), limit(8))
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.docs.length > 0) {
