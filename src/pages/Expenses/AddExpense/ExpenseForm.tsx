@@ -29,7 +29,7 @@ import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 
 type Inputs = {
-  amount: string;
+  amount: number;
   category: string;
   date: string | Date;
   type: string;
@@ -62,8 +62,8 @@ export default function ExpenseForm() {
   } = useForm<Inputs>({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
-      amount: "",
-      category: "bills",
+      // amount: "",
+      category: "",
       date: "",
       type: "monthly",
       description: "",
@@ -72,13 +72,14 @@ export default function ExpenseForm() {
 
   useEffect(() => {
     if (formState.isSubmitSuccessful) {
-      reset({
-        amount: "",
-        category: "bills",
-        date: "",
-        type: "monthly",
-        description: "",
-      });
+      // reset({
+      // amount: "",
+      // category: "",
+      // date: "",
+      // type: "monthly",
+      // description: "",
+      // });
+      reset();
     }
   }, [formState, reset]);
 
@@ -103,11 +104,13 @@ export default function ExpenseForm() {
         </div>
         <div className="grid gap-2">
           <Label htmlFor="category">Category*</Label>
-          <Select>
+          <Select
+            onValueChange={(value) => setValue("category", value)}
+            defaultValue="bills"
+          >
             <SelectTrigger
-              defaultValue={formState.defaultValues?.category}
-              id="category"
               {...register("category")}
+              id="category"
               className="rounded"
             >
               <SelectValue placeholder="Bills" />
@@ -168,12 +171,11 @@ export default function ExpenseForm() {
           />
         </div>
         <div className="grid gap-2">
-          <Select>
+          <Select onValueChange={(value) => setValue("type", value)}>
             <Label htmlFor="type">Type*</Label>
             <SelectTrigger
               defaultValue={formState.defaultValues?.type}
               id="type"
-              {...register("type")}
               className="rounded"
             >
               <SelectValue placeholder="Monthly" />
