@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 
 export type UserBudget = {
   budget: {
-    total: number | string;
+    total: number;
     monthlyLimit: number;
   };
 };
@@ -32,8 +32,7 @@ const budgetSchema = z.object({
     .number({
       invalid_type_error: "Amount must be valid",
     })
-    .positive()
-    .transform((val) => val.toString()),
+    .positive(),
 });
 
 export default function TotalBudget() {
@@ -44,9 +43,6 @@ export default function TotalBudget() {
     z.infer<typeof budgetSchema>
   >({
     resolver: zodResolver(budgetSchema),
-    defaultValues: {
-      budgetValue: "",
-    },
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof budgetSchema>> = async ({
@@ -61,9 +57,7 @@ export default function TotalBudget() {
 
   useEffect(() => {
     if (formState.isSubmitSuccessful) {
-      reset({
-        budgetValue: "",
-      });
+      reset();
     }
   }, [formState, reset]);
 

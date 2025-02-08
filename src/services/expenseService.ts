@@ -1,15 +1,48 @@
 import { Expense } from "@/pages/Expenses/Expenses";
+import { UserBudget } from "@/pages/Budget/TotalBudget/TotalBudget";
 
 import { db } from "@/config/firebase";
 import { FirebaseError } from "firebase/app";
-import { collection, addDoc, getDocs, query, orderBy, Timestamp, where, sum, getAggregateFromServer, limit } from "firebase/firestore";
+import { collection, doc, getDocs, runTransaction, query, orderBy, Timestamp, where, sum, getAggregateFromServer, limit } from "firebase/firestore";
 
 export type DirectionOrder = "asc" | "desc";
 
 export const addExpense = async (userId: string, expense: Expense) => {
-  const response = await addDoc(collection(db, "users", userId as string, "expenses"),
-    { ...expense, uid: userId }
-  )
+  const { amount } = expense;
+
+  try {
+    const updatedBudget = await runTransaction(db, async (transaction) => {
+      const userRef = doc(db, "users", userId as string);
+      const userDoc = await transaction.get(userRef);
+
+      if (!userDoc.exists()) {
+        throw new Error("User document does not exist!");
+      }
+
+      const { budget } = userDoc.data() as UserBudget;
+
+      if (amount > budget.total) {
+        throw new Error("Insufficient budget!");
+      }
+
+      const newTotal = budget.total - amount;
+
+      const expenseRef = doc(collection(db, "users", userId, "expenses"));
+
+      transaction.set(expenseRef,
+        { ...expense, uid: userId }
+      )
+
+      transaction.update(doc(db, "users", userId as string), {
+        budget: { ...budget, total: newTotal }
+      })
+
+      return newTotal
+    })
+    return updatedBudget;
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
 }
 
 export const getExpenses = async (userId: string, type: string, order: DirectionOrder): Promise<(Expense & { docId: string })[]> => {

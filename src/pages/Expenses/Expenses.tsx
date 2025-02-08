@@ -7,7 +7,7 @@ import ExpensesList from "./ExpensesList";
 import OrderBy from "./OrderBy";
 
 export type Expense = {
-  amount: string;
+  amount: number;
   category: string;
   description: string;
   date: Timestamp | string | Date;
