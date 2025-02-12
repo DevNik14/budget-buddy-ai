@@ -47,9 +47,6 @@ export default function LoginForm({
     } catch (error) {
       if (error instanceof FirebaseError) {
         setError(formatErrorMessage(error));
-        setTimeout(() => {
-          setError("");
-        }, 3000);
       }
     }
   };
@@ -64,7 +61,7 @@ export default function LoginForm({
 
   return (
     <>
-      <div className="h-12 mb-4">
+      <div role="alert" className="h-12 mb-4">
         {error !== "" && <ErrorAuthMessage message={error} />}
       </div>
       <form
@@ -120,8 +117,8 @@ export default function LoginForm({
         <Button
           className="rounded border-solid border-black w-full"
           variant="outline"
-          disabled={disableLoginButton()}
           type="submit"
+          disabled={disableLoginButton()}
         >
           Login
         </Button>

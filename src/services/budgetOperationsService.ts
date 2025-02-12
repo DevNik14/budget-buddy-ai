@@ -14,7 +14,7 @@ export const getTotalBudgetHandler = async (userId: string) => {
   }
 };
 
-export const setTotalBudgetHandler = async (userId: string, budgetValue: string | number) => {
+export const setTotalBudgetHandler = async (userId: string, budgetValue: number) => {
   const userRef = doc(db, "users", userId as string);
   try {
     const userNewTotalBudget = await runTransaction(

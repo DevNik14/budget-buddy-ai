@@ -94,7 +94,7 @@ export default function MonthlySpendingLimit() {
           <div className="flex flex-col gap-2">
             <div className="flex justify-end text-sm">
               <p>
-                lv. {currentSpendings} / {monthlySpendingLimit}
+                lv. {currentSpendings.toFixed(2)} / {monthlySpendingLimit}
               </p>
             </div>
             <Progress
