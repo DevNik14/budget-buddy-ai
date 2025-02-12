@@ -1,36 +1,44 @@
-import { useRef } from "react";
 import { Expense } from "./Expenses";
 import formatDate from "@/utils/formatDate";
 
+import { Trash2 } from "lucide-react";
+import EditExpense from "./EditExpense/EditExpenseDialog";
+
 export default function ExpenseListItem({
-  category,
-  amount,
-  date,
-  description,
-  type,
-  docId,
+  expense,
   i,
-}: Expense & { i: number }) {
-  const expenseItemRef = useRef<string | undefined>(undefined);
-  expenseItemRef.current = docId;
+}: {
+  expense: Expense;
+  i: number;
+}) {
   const isDescriptionEmpty = (desc: string) => desc === "";
 
   return (
-    <li
-      key={i}
-      className="grid grid-cols-3 md:grid-cols-5 text-center py-4 border-t capitalize"
-    >
-      <span>{category}</span>
-      <span>{amount} lv.</span>
-      <span>{formatDate(date)}</span>
-      <span
-        className={`${
-          isDescriptionEmpty(description) && "text-slate-500"
-        } hidden md:block`}
+    <>
+      <li
+        key={i}
+        className="grid grid-cols-3 md:grid-cols-7 text-center p-4 border-t capitalize"
       >
-        {isDescriptionEmpty(description) ? "Optional" : description}
-      </span>
-      <span className="hidden md:block">{type}</span>
-    </li>
+        <span>{expense.category}</span>
+        <span>{expense.amount} lv.</span>
+        <span>{formatDate(expense.date)}</span>
+        <span
+          className={`${
+            isDescriptionEmpty(expense.description) && "text-slate-500"
+          } hidden md:block`}
+        >
+          {isDescriptionEmpty(expense.description)
+            ? "Optional"
+            : expense.description}
+        </span>
+        <span className="hidden md:block">{expense.type}</span>
+        <div className="flex justify-center">
+          <EditExpense expense={expense} />
+        </div>
+        <div className="flex justify-center">
+          <Trash2 className="text-red-600 cursor-pointer" />
+        </div>
+      </li>
+    </>
   );
 }

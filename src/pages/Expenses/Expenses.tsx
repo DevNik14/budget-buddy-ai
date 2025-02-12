@@ -4,16 +4,16 @@ import { Link } from "react-router-dom";
 import { Timestamp } from "firebase/firestore";
 
 import ExpensesList from "./ExpensesList";
-import OrderBy from "./OrderBy";
+import OrderBy from "./OrderBy/OrderBy";
 
 export type Expense = {
   amount: number;
   category: string;
   description: string;
   date: Timestamp | string | Date;
-  type?: string;
-  docId?: string;
-  uid?: string;
+  type: string;
+  docId: string;
+  uid: string;
 };
 
 export default function Expenses() {

@@ -1,8 +1,8 @@
 import { getExpenses } from "@/services/expenseService";
-import { useQuery } from "@tanstack/react-query";
-import LoadingSpinner from "@/components/ui/LoadingSpinnerProps";
 import ExpenseListItem from "./ExpenseItem";
 
+import { useQuery } from "@tanstack/react-query";
+import LoadingSpinner from "@/components/ui/LoadingSpinnerProps";
 const tableHeads = [
   "category",
   "amount",
@@ -10,6 +10,8 @@ const tableHeads = [
   "description",
   "type",
   "docId",
+  "edit",
+  "delete",
 ] as const;
 
 export default function ExpensesList({
@@ -35,11 +37,11 @@ export default function ExpensesList({
 
   return (
     <ul className="border rounded text-center">
-      <header className="hidden md:grid grid-cols-5 border-b p-4 capitalize font-bold tracking-tight text-base">
+      <header className="hidden md:grid grid-cols-7 border-b p-4 capitalize font-bold tracking-tight text-base">
         {tableHeads.map((th, i) => th !== "docId" && <div key={i}>{th}</div>)}
       </header>
       {data.map((expense, i) => {
-        return <ExpenseListItem key={i} {...expense} i={i} />;
+        return <ExpenseListItem key={i} expense={expense} i={i} />;
       })}
     </ul>
   );
