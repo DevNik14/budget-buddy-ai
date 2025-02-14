@@ -28,7 +28,7 @@ import { Label } from "@/components/ui/label";
 
 import { format } from "date-fns";
 
-type Inputs = {
+export type Inputs = {
   amount: number;
   category: string;
   date: string | Date;
@@ -88,7 +88,7 @@ export default function ExpenseForm() {
 
     const date = Timestamp.fromDate(new Date(formValues["date"]));
 
-    addExpense(userId as string, { ...formValues, date: date });
+    addExpense(userId as string, { ...formValues });
   };
   return (
     <form onSubmit={handleSubmit(onSubmut)}>
