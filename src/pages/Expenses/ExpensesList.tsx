@@ -1,18 +1,8 @@
 import { getExpenses } from "@/services/expenseService";
 import ExpenseListItem from "./ExpenseItem";
-
+import { tableHeads } from "../Budget/RecentExpenses/RecentExpensesList";
 import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "@/components/ui/LoadingSpinnerProps";
-const tableHeads = [
-  "category",
-  "amount",
-  "date",
-  "description",
-  "type",
-  "docId",
-  "edit",
-  "delete",
-] as const;
 
 export default function ExpensesList({
   type,

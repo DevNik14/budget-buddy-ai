@@ -5,11 +5,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 import EditExpenseForm from "./EditExpenseForm";
 import { Expense } from "../Expenses";
@@ -21,10 +19,16 @@ export default function EditExpense({ expense }: { expense: Expense }) {
         <DialogTrigger>
           <Pencil className="text-green-600 cursor-pointer" />
         </DialogTrigger>
-        <DialogContent className="bg-white">
+        <DialogContent
+          className="bg-white"
+          onPointerDownOutside={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>Edit Expense</DialogTitle>
           </DialogHeader>
+          <VisuallyHidden>
+            <DialogDescription></DialogDescription>
+          </VisuallyHidden>
           <EditExpenseForm expense={expense} />
         </DialogContent>
       </Dialog>

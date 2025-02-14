@@ -1,5 +1,6 @@
 import { Expense } from "@/pages/Expenses/Expenses";
 import { UserBudget } from "@/pages/Budget/TotalBudget/TotalBudget";
+import { Inputs } from "@/pages/Expenses/AddExpense/ExpenseForm";
 
 import { db } from "@/config/firebase";
 import { FirebaseError } from "firebase/app";
@@ -7,7 +8,7 @@ import { collection, doc, getDocs, runTransaction, query, orderBy, Timestamp, wh
 
 export type DirectionOrder = "asc" | "desc";
 
-export const addExpense = async (userId: string, expense: Expense) => {
+export const addExpense = async (userId: string, expense: Inputs) => {
   const { amount } = expense;
 
   try {
