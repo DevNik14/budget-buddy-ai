@@ -17,7 +17,7 @@ export const tableHeads = [
 export default function RecentExpensesList() {
   const userId = localStorage.getItem("uid");
   const { isError, isPending, data, error } = useQuery({
-    queryKey: ["recentExpenses", userId],
+    queryKey: ["recentExpenses"],
     queryFn: () => getRecentExpenses(userId as string),
   });
 

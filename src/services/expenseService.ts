@@ -4,7 +4,7 @@ import { Inputs } from "@/pages/Expenses/AddExpense/ExpenseForm";
 
 import { db } from "@/config/firebase";
 import { FirebaseError } from "firebase/app";
-import { collection, doc, getDocs, runTransaction, query, orderBy, Timestamp, where, sum, getAggregateFromServer, limit } from "firebase/firestore";
+import { collection, updateDoc, doc, getDocs, runTransaction, query, orderBy, Timestamp, where, sum, getAggregateFromServer, limit } from "firebase/firestore";
 
 export type DirectionOrder = "asc" | "desc";
 
@@ -85,6 +85,18 @@ export const getRecentExpenses = async (userId: string) => {
       throw new FirebaseError('not-found', "No expenses found!");
     }
   } catch (error: any) {
+    throw new Error(error.message);
+  }
+}
+
+export const updateExpense = async (userId: string, expense: any, docId: string) => {
+  try {
+    const expenseRef = doc(db, "users", userId, "expenses", docId);
+    await updateDoc(expenseRef, expense);
+    // return "Expense updated successfully!"
+    return expense;
+  } catch (error: any) {
+    console.log(error);
     throw new Error(error.message);
   }
 }

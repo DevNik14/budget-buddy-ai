@@ -1,3 +1,10 @@
+import { Expense } from "../Expenses";
+import formatDate from "@/utils/formatDate";
+
+import { updateExpense } from "@/services/expenseService";
+
+import { Timestamp } from "firebase/firestore";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -31,8 +38,6 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Expense } from "../Expenses";
-import formatDate from "@/utils/formatDate";
 
 const expenseSchema = z.object({
   amount: z.coerce
@@ -42,12 +47,50 @@ const expenseSchema = z.object({
     })
     .positive(),
   category: z.string(),
-  date: z.string().date(),
+  date: z.string(),
   description: z.string().optional(),
   type: z.string(),
 });
 
+type FirebaseExpenseValues = {
+  amount: number;
+  category: string;
+  date: Timestamp;
+  type: string;
+  description?: string;
+};
+
 export default function EditExpenseForm({ expense }: { expense: Expense }) {
+  const userId = localStorage.getItem("uid")!;
+  const queryClient = useQueryClient();
+  const expenseMutation = useMutation({
+    mutationFn: ({
+      userId,
+      values,
+      docId,
+    }: {
+      userId: string;
+      values: any;
+      docId: string;
+    }) => updateExpense(userId, values, docId),
+    onMutate: async (newExpense) => {
+      await queryClient.cancelQueries({ queryKey: ["recentExpenses"] });
+      const previousExpense = queryClient.getQueryData(["recentExpenses"]);
+      queryClient.setQueryData(["recentExpenses"], (old: Array<Expense>) => {
+        return [...old, newExpense];
+      });
+      return previousExpense;
+    },
+    onError: (err, newExpense, context: any) => {
+      console.log(err);
+      console.log(newExpense);
+      queryClient.setQueryData(["recentExpenses"], context.previousExpense);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["recentExpenses"] });
+    },
+  });
+
   const constructDefaultValues = (expense: Expense) => {
     return Object.fromEntries(
       Object.entries(expense).filter(
@@ -64,8 +107,17 @@ export default function EditExpenseForm({ expense }: { expense: Expense }) {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof expenseSchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof expenseSchema>) => {
+    const newExpenseValues: FirebaseExpenseValues = {
+      ...values,
+      date: Timestamp.fromDate(new Date(values.date)),
+    };
+
+    expenseMutation.mutate({
+      userId,
+      values: newExpenseValues,
+      docId: expense.docId,
+    });
   };
 
   return (
@@ -181,12 +233,6 @@ export default function EditExpenseForm({ expense }: { expense: Expense }) {
                     <Calendar
                       className={cn("pointer-events-auto")}
                       mode="single"
-                      // selected={formatDate(field.value)}
-                      // onSelect={(date) => {
-                      //   console.log(field);
-
-                      //   console.log(date);
-                      // }}
                       onSelect={field.onChange}
                       disabled={(date) =>
                         date > new Date() || date < new Date("1900-01-01")
