@@ -1,6 +1,6 @@
 import { Expense } from "../Expenses";
 import formatDate from "@/utils/formatDate";
-
+import { FirebaseExpenseValues } from "@/types/common";
 import { updateExpense } from "@/services/expenseService";
 
 import { Timestamp } from "firebase/firestore";
@@ -51,14 +51,6 @@ const expenseSchema = z.object({
   description: z.string().optional(),
   type: z.string(),
 });
-
-type FirebaseExpenseValues = {
-  amount: number;
-  category: string;
-  date: Timestamp;
-  type: string;
-  description?: string;
-};
 
 export default function EditExpenseForm({ expense }: { expense: Expense }) {
   const userId = localStorage.getItem("uid")!;

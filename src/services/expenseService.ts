@@ -4,7 +4,9 @@ import { Inputs } from "@/pages/Expenses/AddExpense/ExpenseForm";
 
 import { db } from "@/config/firebase";
 import { FirebaseError } from "firebase/app";
-import { collection, updateDoc, doc, getDocs, runTransaction, query, orderBy, Timestamp, where, sum, getAggregateFromServer, limit } from "firebase/firestore";
+import { collection, doc, getDocs, runTransaction, query, orderBy, Timestamp, where, sum, getAggregateFromServer, limit } from "firebase/firestore";
+import { FirebaseExpenseValues } from "@/types/common";
+import formatDate from "@/utils/formatDate";
 
 export type DirectionOrder = "asc" | "desc";
 
@@ -89,12 +91,56 @@ export const getRecentExpenses = async (userId: string) => {
   }
 }
 
-export const updateExpense = async (userId: string, expense: any, docId: string) => {
+export const updateExpense = async (userId: string, expense: FirebaseExpenseValues, docId: string) => {
+  const currentMonth = new Date().getMonth() + 1;
+  const { amount: newExpenseAmount } = expense;
+
+  const expenseInitalMonth = Number(formatDate(expense.date).split("/")[0]);
+  const expenseRef = doc(db, "users", userId, "expenses", docId);
+
   try {
-    const expenseRef = doc(db, "users", userId, "expenses", docId);
-    await updateDoc(expenseRef, expense);
-    // return "Expense updated successfully!"
-    return expense;
+    const updatedExpense = await runTransaction(db, async (transaction) => {
+      const userRef = doc(db, "users", userId as string);
+      const userDoc = await transaction.get(userRef);
+      const expenseDoc = await transaction.get(expenseRef);
+      if (!userDoc.exists()) {
+        throw new Error("User document does not exist!");
+      }
+
+      const { budget } = userDoc.data() as UserBudget;
+      const { amount: oldExpenseAmount } = expenseDoc.data() as FirebaseExpenseValues;
+
+      if (newExpenseAmount > budget.total) {
+        throw new Error("Insufficient budget!");
+      }
+
+      let newTotalBudget = 0;
+      let difference = 0;
+      if (currentMonth === expenseInitalMonth) {
+        if (oldExpenseAmount < newExpenseAmount) {
+          const difference = newExpenseAmount - oldExpenseAmount;
+          newTotalBudget = budget.total - difference;
+        } else if (oldExpenseAmount > newExpenseAmount) {
+          difference = oldExpenseAmount - newExpenseAmount;
+          newTotalBudget = budget.total + difference;
+        }
+      } else {
+        if (oldExpenseAmount < newExpenseAmount) {
+          const difference = newExpenseAmount - oldExpenseAmount;
+          newTotalBudget = budget.total - difference;
+        } else if (oldExpenseAmount > newExpenseAmount) {
+          difference = oldExpenseAmount - newExpenseAmount;
+          newTotalBudget = budget.total + difference;
+        }
+      }
+      transaction.update(expenseRef, expense);
+      transaction.update(doc(db, "users", userId as string), {
+        budget: { ...budget, total: newTotalBudget }
+      })
+
+      return expense;
+    })
+    return updatedExpense;
   } catch (error: any) {
     console.log(error);
     throw new Error(error.message);
