@@ -4,7 +4,7 @@ import { Inputs } from "@/pages/Expenses/AddExpense/ExpenseForm";
 
 import { db } from "@/config/firebase";
 import { FirebaseError } from "firebase/app";
-import { collection, doc, getDocs, runTransaction, query, orderBy, Timestamp, where, sum, getAggregateFromServer, limit } from "firebase/firestore";
+import { collection, doc, writeBatch, getDocs, runTransaction, query, orderBy, Timestamp, where, sum, getAggregateFromServer, limit } from "firebase/firestore";
 import { FirebaseExpenseValues } from "@/types/common";
 import formatDate from "@/utils/formatDate";
 
@@ -97,10 +97,10 @@ export const updateExpense = async (userId: string, expense: FirebaseExpenseValu
 
   const expenseInitalMonth = Number(formatDate(expense.date).split("/")[0]);
   const expenseRef = doc(db, "users", userId, "expenses", docId);
+  const userRef = doc(db, "users", userId as string);
 
   try {
     const updatedExpense = await runTransaction(db, async (transaction) => {
-      const userRef = doc(db, "users", userId as string);
       const userDoc = await transaction.get(userRef);
       const expenseDoc = await transaction.get(expenseRef);
       if (!userDoc.exists()) {
@@ -144,5 +144,32 @@ export const updateExpense = async (userId: string, expense: FirebaseExpenseValu
   } catch (error: any) {
     console.log(error);
     throw new Error(error.message);
+  }
+}
+
+export const deleteExpense = async (userId: string, amount: number, docId: string) => {
+  const userRef = doc(db, "users", userId as string);
+  const expenseRef = doc(db, "users", userId, "expenses", docId);
+  try {
+    const deletedExpense = await runTransaction(db, async (transaction) => {
+      const expenseDoc = await transaction.get(expenseRef);
+      const userDoc = await transaction.get(userRef);
+      if (!expenseDoc.exists()) {
+        throw new Error("Document does not exist!");
+      }
+
+      const { budget } = userDoc.data() as UserBudget;
+      const newTotalBudget = budget.total + amount;
+
+      transaction.update(userRef, {
+        budget: { ...budget, total: newTotalBudget }
+      })
+
+      transaction.delete(expenseRef);
+      return "Expense successfully deleted!"
+    })
+    return deletedExpense;
+  } catch (error: any) {
+    throw new Error(error.message)
   }
 }
