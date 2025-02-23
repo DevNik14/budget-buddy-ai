@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import {
   setTotalBudgetHandler,
-  getTotalBudgetHandler,
+  getTotalBudget,
 } from "@/services/budgetOperationsService";
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 
 import {
   Card,
@@ -36,8 +37,42 @@ const budgetSchema = z.object({
 });
 
 export default function TotalBudget() {
-  const userId = localStorage.getItem("uid");
-  const [userBudget, setUserBudget] = useState<string | number | null>(null);
+  const userId = localStorage.getItem("uid")!;
+  const { data, isError, error, isPending } = useQuery({
+    queryKey: ["budget"],
+    queryFn: async () => {
+      return getTotalBudget(userId);
+    },
+  });
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: ({
+      userId,
+      budgetValue,
+    }: {
+      userId: string;
+      budgetValue: number;
+    }) => {
+      return setTotalBudgetHandler(userId, budgetValue);
+    },
+    onMutate: async (newBudget) => {
+      await queryClient.cancelQueries({ queryKey: "budget" });
+
+      const previousBudget = queryClient.getQueryData<number>(["budget"]);
+
+      queryClient.setQueryData(["budget"], newBudget.budgetValue);
+
+      return { previousBudget };
+    },
+    onError: (err, newTodo, context: any) => {
+      console.log(err);
+      console.log(newTodo);
+      queryClient.setQueryData(["budget"], context.previousBudget);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["budget"] });
+    },
+  });
 
   const { register, handleSubmit, formState, reset } = useForm<
     z.infer<typeof budgetSchema>
@@ -48,11 +83,7 @@ export default function TotalBudget() {
   const onSubmit: SubmitHandler<z.infer<typeof budgetSchema>> = async ({
     budgetValue,
   }) => {
-    const userNewTotalBudget = await setTotalBudgetHandler(
-      userId as string,
-      budgetValue
-    );
-    setUserBudget(userNewTotalBudget);
+    mutation.mutate({ userId, budgetValue });
   };
 
   useEffect(() => {
@@ -61,22 +92,24 @@ export default function TotalBudget() {
     }
   }, [formState, reset]);
 
-  useEffect(() => {
-    const totalBudget = async () =>
-      setUserBudget(await getTotalBudgetHandler(userId as string));
-    totalBudget();
-  }, [userId]);
+  const displayBudgetHandler = () => {
+    if (isPending) {
+      return (
+        <Skeleton className="w-[194px] h-[24px] rounded-full bg-slate-300" />
+      );
+    } else if (isError) {
+      return <span>{error.message}</span>;
+    } else {
+      return <span>{`Total Budget: ${data} lv.`}</span>;
+    }
+  };
 
   return (
     <>
       <Card className="rounded">
         <CardHeader>
           <CardTitle className="flex items-center justify-between font-bold tracking-tight text-base">
-            {userBudget ? (
-              <span>{`Total Budget: ${userBudget} lv.`}</span>
-            ) : (
-              <Skeleton className="w-[194px] h-[24px] rounded-full bg-slate-300" />
-            )}
+            {displayBudgetHandler()}
           </CardTitle>
 
           <CardDescription className="text-sm text-muted-foreground">

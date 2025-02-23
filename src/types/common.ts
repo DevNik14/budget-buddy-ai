@@ -17,3 +17,10 @@ export type Expense = {
   docId: string;
   uid: string;
 };
+
+export type UserBudget = {
+  budget: {
+    total: number;
+    monthlyLimit: number;
+  };
+};
