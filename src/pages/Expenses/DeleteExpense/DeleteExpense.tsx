@@ -21,6 +21,7 @@ export default function DeleteExpense({
       amount: number;
       docId: string;
     }) => deleteExpense(userId, amount, docId),
+    onMutate: async (newExpense) => {},
   });
 
   return (

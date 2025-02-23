@@ -1,16 +1,19 @@
+import { UserBudget } from "@/types/common";
+
 import { db } from "@/config/firebase";
 import { getDoc, doc, runTransaction } from "firebase/firestore";
 
-import { UserBudget } from "@/pages/Budget/TotalBudget/TotalBudget";
-
-export const getTotalBudgetHandler = async (userId: string) => {
+export const getTotalBudget = async (userId: string) => {
   const userRef = doc(db, "users", userId as string);
   try {
     const budgetSnap = await getDoc(userRef);
+    if (!budgetSnap.exists()) {
+      throw new Error("Can't get budget!");
+    }
     return budgetSnap.data()?.budget.total;
   } catch (error) {
     console.log(error);
-    return null;
+    throw new Error("Can't get budget!")
   }
 };
 
@@ -33,7 +36,7 @@ export const setTotalBudgetHandler = async (userId: string, budgetValue: number)
     return userNewTotalBudget;
   } catch (error) {
     console.log(error);
-    return null;
+    throw new Error("Can't set budget!")
   }
 }
 
@@ -72,6 +75,6 @@ export const setMonthlyLimitHandler = async (userId: string, newMonthlyLimit: nu
     return usersMonthlyLimit;
   } catch (error) {
     console.log(error);
-    return null;
+    throw new Error("Could not set budget!")
   }
 }

@@ -4,9 +4,8 @@ import { Inputs } from "@/pages/Expenses/AddExpense/ExpenseForm";
 
 import { db } from "@/config/firebase";
 import { FirebaseError } from "firebase/app";
-import { collection, doc, writeBatch, getDocs, runTransaction, query, orderBy, Timestamp, where, sum, getAggregateFromServer, limit } from "firebase/firestore";
+import { collection, doc, getDocs, runTransaction, query, orderBy, Timestamp, where, sum, getAggregateFromServer, limit } from "firebase/firestore";
 import { FirebaseExpenseValues } from "@/types/common";
-import formatDate from "@/utils/formatDate";
 
 export type DirectionOrder = "asc" | "desc";
 
@@ -92,10 +91,8 @@ export const getRecentExpenses = async (userId: string) => {
 }
 
 export const updateExpense = async (userId: string, expense: FirebaseExpenseValues, docId: string) => {
-  const currentMonth = new Date().getMonth() + 1;
   const { amount: newExpenseAmount } = expense;
 
-  const expenseInitalMonth = Number(formatDate(expense.date).split("/")[0]);
   const expenseRef = doc(db, "users", userId, "expenses", docId);
   const userRef = doc(db, "users", userId as string);
 
@@ -116,22 +113,12 @@ export const updateExpense = async (userId: string, expense: FirebaseExpenseValu
 
       let newTotalBudget = 0;
       let difference = 0;
-      if (currentMonth === expenseInitalMonth) {
-        if (oldExpenseAmount < newExpenseAmount) {
-          const difference = newExpenseAmount - oldExpenseAmount;
-          newTotalBudget = budget.total - difference;
-        } else if (oldExpenseAmount > newExpenseAmount) {
-          difference = oldExpenseAmount - newExpenseAmount;
-          newTotalBudget = budget.total + difference;
-        }
-      } else {
-        if (oldExpenseAmount < newExpenseAmount) {
-          const difference = newExpenseAmount - oldExpenseAmount;
-          newTotalBudget = budget.total - difference;
-        } else if (oldExpenseAmount > newExpenseAmount) {
-          difference = oldExpenseAmount - newExpenseAmount;
-          newTotalBudget = budget.total + difference;
-        }
+      if (oldExpenseAmount < newExpenseAmount) {
+        difference = newExpenseAmount - oldExpenseAmount;
+        newTotalBudget = budget.total - difference;
+      } else if (oldExpenseAmount > newExpenseAmount) {
+        difference = oldExpenseAmount - newExpenseAmount;
+        newTotalBudget = budget.total + difference;
       }
       transaction.update(expenseRef, expense);
       transaction.update(doc(db, "users", userId as string), {
