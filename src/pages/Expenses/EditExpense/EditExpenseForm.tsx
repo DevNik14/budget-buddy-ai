@@ -71,7 +71,7 @@ export default function EditExpenseForm({ expense }: { expense: Expense }) {
       queryClient.setQueryData(["recentExpenses"], (old: Array<Expense>) => {
         return [...old, newExpense];
       });
-      return previousExpense;
+      return { previousExpense };
     },
     onError: (err, newExpense, context: any) => {
       console.log(err);

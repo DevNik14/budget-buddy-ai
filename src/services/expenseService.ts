@@ -4,7 +4,7 @@ import { Inputs } from "@/pages/Expenses/AddExpense/ExpenseForm";
 
 import { db } from "@/config/firebase";
 import { FirebaseError } from "firebase/app";
-import { collection, doc, writeBatch, getDocs, runTransaction, query, orderBy, Timestamp, where, sum, getAggregateFromServer, limit } from "firebase/firestore";
+import { collection, doc, getDocs, runTransaction, query, orderBy, Timestamp, where, sum, getAggregateFromServer, limit } from "firebase/firestore";
 import { FirebaseExpenseValues } from "@/types/common";
 
 export type DirectionOrder = "asc" | "desc";
@@ -134,7 +134,7 @@ export const updateExpense = async (userId: string, expense: FirebaseExpenseValu
   }
 }
 
-export const deleteExpense = async (userId: string, amount: number, docId: string) => {
+export const deleteExpense = async (userId: string, docId: string) => {
   const userRef = doc(db, "users", userId as string);
   const expenseRef = doc(db, "users", userId, "expenses", docId);
   try {
@@ -145,6 +145,7 @@ export const deleteExpense = async (userId: string, amount: number, docId: strin
         throw new Error("Document does not exist!");
       }
 
+      const { amount } = expenseDoc.data() as Expense;
       const { budget } = userDoc.data() as UserBudget;
       const newTotalBudget = budget.total + amount;
 
@@ -153,7 +154,7 @@ export const deleteExpense = async (userId: string, amount: number, docId: strin
       })
 
       transaction.delete(expenseRef);
-      return "Expense successfully deleted!"
+      return expenseDoc.data() as Expense;
     })
     return deletedExpense;
   } catch (error: any) {

@@ -1,7 +1,6 @@
 import { Expense } from "./Expenses";
 import formatDate from "@/utils/formatDate";
 
-import { Trash2 } from "lucide-react";
 import EditExpense from "./EditExpense/EditExpenseDialog";
 import DeleteExpense from "./DeleteExpense/DeleteExpense";
 
@@ -37,7 +36,11 @@ export default function ExpenseListItem({
           <EditExpense expense={expense} />
         </div>
         <div className="flex justify-center">
-          <DeleteExpense amount={expense.amount} docId={expense.docId} />
+          <DeleteExpense
+            amount={expense.amount}
+            docId={expense.docId}
+            expenseDate={formatDate(expense.date)}
+          />
         </div>
       </li>
     </>
