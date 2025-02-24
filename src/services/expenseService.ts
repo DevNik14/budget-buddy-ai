@@ -4,7 +4,7 @@ import { Inputs } from "@/pages/Expenses/AddExpense/ExpenseForm";
 
 import { db } from "@/config/firebase";
 import { FirebaseError } from "firebase/app";
-import { collection, doc, getDocs, runTransaction, query, orderBy, Timestamp, where, sum, getAggregateFromServer, limit } from "firebase/firestore";
+import { collection, doc, writeBatch, getDocs, runTransaction, query, orderBy, Timestamp, where, sum, getAggregateFromServer, limit } from "firebase/firestore";
 import { FirebaseExpenseValues } from "@/types/common";
 
 export type DirectionOrder = "asc" | "desc";
