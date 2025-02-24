@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 import {
   getMonthlySpendingLimit,
-  setMonthlyLimit,
+  setMonthlySpendingLimit,
 } from "@/services/budgetOperationsService";
 import { getExpensesForTheCurrentMonth } from "@/services/expenseService";
 
@@ -36,12 +36,7 @@ export default function MonthlySpendingLimit() {
   const queryClient = useQueryClient();
   const currentMonthDate = getFirstDayOfCurrentMonth();
 
-  const {
-    data: currentMonthSpendings,
-    error,
-    isError,
-    isPending,
-  } = useQuery({
+  const { data: currentMonthSpendings } = useQuery({
     queryKey: ["currentMonthSpendings"],
     queryFn: () => getExpensesForTheCurrentMonth(userId, currentMonthDate),
   });
@@ -58,7 +53,7 @@ export default function MonthlySpendingLimit() {
     }: {
       userId: string;
       newMonthlyLimit: number;
-    }) => setMonthlyLimit(userId, newMonthlyLimit),
+    }) => setMonthlySpendingLimit(userId, newMonthlyLimit),
     onMutate: async (newLimit) => {
       await queryClient.cancelQueries({ queryKey: "monthlySpendingLimit" });
       const previousMonthlyLimit = queryClient.getQueryData<number>([
@@ -124,7 +119,7 @@ export default function MonthlySpendingLimit() {
           <div className="flex flex-col gap-2">
             <div className="flex justify-end text-sm">
               <p>
-                lv. {currentMonthSpendings!.toFixed(2)} / {monthlySpendingLimit}
+                lv. {currentMonthSpendings?.toFixed(2)} / {monthlySpendingLimit}
               </p>
             </div>
             <Progress

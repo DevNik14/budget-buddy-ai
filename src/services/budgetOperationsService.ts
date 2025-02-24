@@ -10,7 +10,7 @@ export const getTotalBudget = async (userId: string) => {
     if (!budgetSnap.exists()) {
       throw new Error("Can't get budget!");
     }
-    return budgetSnap.data()?.budget.total;
+    return budgetSnap.data().budget.total as number;
   } catch (error) {
     console.log(error);
     throw new Error("Can't get budget!")
@@ -52,11 +52,11 @@ export const getMonthlySpendingLimit = async (userId: string): Promise<number> =
     })
     return spendingLimit.budget.monthlyLimit;
   } catch (error) {
-    throw new Error("Can't get monthly spending limit!")
+    throw new Error("Can't get monthly spending limit!");
   }
 }
 
-export const setMonthlyLimit = async (userId: string, newMonthlyLimit: number): Promise<number> => {
+export const setMonthlySpendingLimit = async (userId: string, newMonthlyLimit: number): Promise<number> => {
   const userRef = doc(db, "users", userId as string);
   try {
     const usersMonthlyLimit = await runTransaction(

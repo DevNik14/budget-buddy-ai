@@ -98,7 +98,7 @@ export default function TotalBudget() {
     } else if (isError) {
       return <span>{error.message}</span>;
     } else {
-      return <span>{`Total Budget: ${data} lv.`}</span>;
+      return <span>{`Total Budget: ${data.toFixed(2)} lv.`}</span>;
     }
   };
 
