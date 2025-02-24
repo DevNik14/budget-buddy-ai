@@ -1,8 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+
+import {
+  getMonthlySpendingLimit,
+  setMonthlyLimit,
+} from "@/services/budgetOperationsService";
+import { getExpensesForTheCurrentMonth } from "@/services/expenseService";
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Progress } from "@/components/ui/progress";
 import {
@@ -14,12 +21,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  getMonthlySpendingLimit,
-  setMonthlyLimitHandler,
-} from "@/services/budgetOperationsService";
-import { Timestamp } from "firebase/firestore";
-import { getExpensesForTheCurrentMonthHandler } from "@/services/expenseService";
+import { getFirstDayOfCurrentMonth } from "@/utils/getFirstDayOfCurrentMonth";
 
 const monthlySpendingLimitSchema = z.object({
   limitValue: z.coerce
@@ -30,11 +32,56 @@ const monthlySpendingLimitSchema = z.object({
 });
 
 export default function MonthlySpendingLimit() {
-  const userId = localStorage.getItem("uid");
-  const [monthlySpendingLimit, setMonthlySpendingLimit] = useState<
-    number | null
-  >(0);
-  const [currentSpendings, setCurrentSpendings] = useState<number>(0);
+  const userId = localStorage.getItem("uid")!;
+  const queryClient = useQueryClient();
+  const currentMonthDate = getFirstDayOfCurrentMonth();
+
+  const {
+    data: currentMonthSpendings,
+    error,
+    isError,
+    isPending,
+  } = useQuery({
+    queryKey: ["currentMonthSpendings"],
+    queryFn: () => getExpensesForTheCurrentMonth(userId, currentMonthDate),
+  });
+
+  const { data: monthlySpendingLimit } = useQuery({
+    queryKey: ["monthlySpendingLimit"],
+    queryFn: () => getMonthlySpendingLimit(userId),
+  });
+
+  const mutation = useMutation({
+    mutationFn: ({
+      userId,
+      newMonthlyLimit,
+    }: {
+      userId: string;
+      newMonthlyLimit: number;
+    }) => setMonthlyLimit(userId, newMonthlyLimit),
+    onMutate: async (newLimit) => {
+      await queryClient.cancelQueries({ queryKey: "monthlySpendingLimit" });
+      const previousMonthlyLimit = queryClient.getQueryData<number>([
+        "monthlySpendingLimit",
+      ]);
+      queryClient.setQueryData(
+        ["monthlySpendingLimit"],
+        newLimit.newMonthlyLimit
+      );
+      return { previousMonthlyLimit };
+    },
+    onError: (err, newTodo, context: any) => {
+      console.log(err);
+      console.log(newTodo);
+      queryClient.setQueryData(
+        ["monthlySpendingLimit"],
+        context.previousMonthlyLimit
+      );
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["monthlySpendingLimit"] });
+    },
+  });
 
   const { register, handleSubmit, formState, reset } = useForm<
     z.infer<typeof monthlySpendingLimitSchema>
@@ -45,39 +92,22 @@ export default function MonthlySpendingLimit() {
   const obSubmit: SubmitHandler<
     z.infer<typeof monthlySpendingLimitSchema>
   > = async ({ limitValue }) => {
-    const newMonthlySpendingLimit = await setMonthlyLimitHandler(
-      userId as string,
-      limitValue
-    );
-    setMonthlySpendingLimit(newMonthlySpendingLimit);
+    mutation.mutate({ userId, newMonthlyLimit: limitValue });
   };
 
   const calculateSpendingLimitInPercentageHandler = () => {
-    if (monthlySpendingLimit && monthlySpendingLimit >= 0) {
-      return (currentSpendings / monthlySpendingLimit) * 100;
+    if (
+      currentMonthSpendings &&
+      monthlySpendingLimit &&
+      monthlySpendingLimit >= 0
+    ) {
+      return (currentMonthSpendings / monthlySpendingLimit) * 100;
     }
   };
 
   useEffect(() => {
     if (formState.isSubmitSuccessful) reset();
   }, [formState, reset]);
-
-  useEffect(() => {
-    const year = new Date().getFullYear();
-    const month = new Date().getMonth() + 1;
-    const currentMonthDate = Timestamp.fromDate(
-      new Date(`${year}-${month}-01`)
-    );
-
-    Promise.all([
-      getMonthlySpendingLimit(userId as string),
-      getExpensesForTheCurrentMonthHandler(userId as string, currentMonthDate),
-    ]).then((data) => {
-      const [monthlySpendingLimit, currentMonthSpending] = data;
-      setMonthlySpendingLimit(monthlySpendingLimit);
-      setCurrentSpendings(currentMonthSpending);
-    });
-  }, [userId]);
 
   return (
     <>
@@ -94,7 +124,7 @@ export default function MonthlySpendingLimit() {
           <div className="flex flex-col gap-2">
             <div className="flex justify-end text-sm">
               <p>
-                lv. {currentSpendings.toFixed(2)} / {monthlySpendingLimit}
+                lv. {currentMonthSpendings!.toFixed(2)} / {monthlySpendingLimit}
               </p>
             </div>
             <Progress

@@ -62,17 +62,17 @@ export const getExpenses = async (userId: string, type: string, order: Direction
   }
 }
 
-export const getExpensesForTheCurrentMonthHandler = async (userId: string, fromDate: Timestamp) => {
-  const q = query(collection(db, "users", userId as string, "expenses"), where("date", ">=", fromDate))
-  const querySnapshot = await getAggregateFromServer(q, {
-    totalExpenses: sum("amount")
-  })
-    .then(snap => snap.data().totalExpenses)
-    .catch(e => {
-      console.log(e);
-      return 0;
-    })
-  return querySnapshot
+export const getExpensesForTheCurrentMonth = async (userId: string, fromDate: Timestamp) => {
+  try {
+    const q = query(collection(db, "users", userId as string, "expenses"), where("date", ">=", fromDate))
+    const querySnapshot = await getAggregateFromServer(q, {
+      totalExpenses: sum("amount")
+    });
+    return querySnapshot.data().totalExpenses
+  } catch (error: any) {
+    console.log(error);
+    throw new Error("No expenses for the current month!");
+  }
 }
 
 export const getRecentExpenses = async (userId: string) => {

@@ -40,9 +40,7 @@ export default function TotalBudget() {
   const userId = localStorage.getItem("uid")!;
   const { data, isError, error, isPending } = useQuery({
     queryKey: ["budget"],
-    queryFn: async () => {
-      return getTotalBudget(userId);
-    },
+    queryFn: async () => getTotalBudget(userId),
   });
   const queryClient = useQueryClient();
   const mutation = useMutation({

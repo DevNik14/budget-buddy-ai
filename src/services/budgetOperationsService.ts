@@ -36,11 +36,11 @@ export const setTotalBudgetHandler = async (userId: string, budgetValue: number)
     return userNewTotalBudget;
   } catch (error) {
     console.log(error);
-    throw new Error("Can't set budget!")
+    throw new Error("Can't set budget!");
   }
 }
 
-export const getMonthlySpendingLimit = async (userId: string): Promise<number | null> => {
+export const getMonthlySpendingLimit = async (userId: string): Promise<number> => {
   const userRef = doc(db, "users", userId as string);
   try {
     const spendingLimit = await runTransaction(db, async (transaction) => {
@@ -52,11 +52,11 @@ export const getMonthlySpendingLimit = async (userId: string): Promise<number | 
     })
     return spendingLimit.budget.monthlyLimit;
   } catch (error) {
-    return null;
+    throw new Error("Can't get monthly spending limit!")
   }
 }
 
-export const setMonthlyLimitHandler = async (userId: string, newMonthlyLimit: number): Promise<number | null> => {
+export const setMonthlyLimit = async (userId: string, newMonthlyLimit: number): Promise<number> => {
   const userRef = doc(db, "users", userId as string);
   try {
     const usersMonthlyLimit = await runTransaction(
@@ -75,6 +75,6 @@ export const setMonthlyLimitHandler = async (userId: string, newMonthlyLimit: nu
     return usersMonthlyLimit;
   } catch (error) {
     console.log(error);
-    throw new Error("Could not set budget!")
+    throw new Error("Could not set monthly limit!")
   }
 }
