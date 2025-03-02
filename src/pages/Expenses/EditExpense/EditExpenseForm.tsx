@@ -53,6 +53,8 @@ const expenseSchema = z.object({
 });
 
 export default function EditExpenseForm({ expense }: { expense: Expense }) {
+  const expenseMonth = formatDate(expense.date)?.split("/")[0];
+  const currentMonth = new Date().getMonth() + 1;
   const userId = localStorage.getItem("uid")!;
   const queryClient = useQueryClient();
   const expenseMutation = useMutation({
@@ -62,24 +64,64 @@ export default function EditExpenseForm({ expense }: { expense: Expense }) {
       docId,
     }: {
       userId: string;
-      values: any;
+      values: FirebaseExpenseValues;
       docId: string;
+      expense: Expense;
     }) => updateExpense(userId, values, docId),
     onMutate: async (newExpense) => {
-      await queryClient.cancelQueries({ queryKey: ["recentExpenses"] });
-      const previousExpense = queryClient.getQueryData(["recentExpenses"]);
+      const { amount } = newExpense.values;
+      const { amount: oldAmount } = newExpense.expense;
+
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: ["budget"] }),
+        queryClient.cancelQueries({ queryKey: ["currentMonthSpendings"] }),
+        queryClient.cancelQueries({ queryKey: ["recentExpenses"] }),
+      ]);
+
+      const previousData = {
+        budget: queryClient.getQueryData<number>(["budget"]),
+        currentMonthSpendings: queryClient.getQueryData<number>([
+          "currentMonthSpendings",
+        ]),
+        recentExpenses: queryClient.getQueryData<Expense[]>(["recentExpenses"]),
+      };
+
+      const diff = Math.abs(amount - oldAmount);
+      queryClient.setQueryData<number>(["budget"], (old) => {
+        return amount > oldAmount
+          ? (old as number) - diff
+          : (old as number) + diff;
+      });
+
+      expenseMonth === currentMonth.toString() &&
+        queryClient.setQueryData<number>(["currentMonthSpendings"], (old) => {
+          return amount > oldAmount
+            ? (old as number) - diff
+            : (old as number) + diff;
+        });
+
       queryClient.setQueryData(["recentExpenses"], (old: Array<Expense>) => {
         return [...old, newExpense];
       });
-      return { previousExpense };
+      return previousData;
     },
     onError: (err, newExpense, context: any) => {
       console.log(err);
       console.log(newExpense);
-      queryClient.setQueryData(["recentExpenses"], context.previousExpense);
+      queryClient.setQueryData(
+        ["recentExpenses"],
+        context.previousData.recentExpenses
+      );
+      queryClient.setQueryData(["budget"], context.previousData.budget);
+      queryClient.setQueryData(
+        ["currentMonthSpendings"],
+        context.previousData.currentMonthSpendings
+      );
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["recentExpenses"] });
+      queryClient.invalidateQueries({ queryKey: ["budget"] });
+      queryClient.invalidateQueries({ queryKey: ["currentMonthSpendings"] });
     },
   });
 
@@ -109,6 +151,7 @@ export default function EditExpenseForm({ expense }: { expense: Expense }) {
       userId,
       values: newExpenseValues,
       docId: expense.docId,
+      expense,
     });
   };
 
