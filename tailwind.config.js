@@ -18,7 +18,7 @@ module.exports = {
     },
     extend: {
       gridTemplateColumns: {
-        "250": 'repeat(2, minmax(300px, 400px))',
+        "cst-db" :"minmax(280px, 450px) 1fr"
       },
       colors: {
         border: "hsl(var(--border))",

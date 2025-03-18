@@ -11,6 +11,8 @@ import UserSettingsPage from "./pages/UserSettings";
 import LoginFormPage from "./pages/Login";
 import RegisterFormPage from "./pages/Register";
 
+import "./App.css";
+
 function App() {
   return (
     <>

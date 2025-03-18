@@ -5,7 +5,7 @@ import LatestSpendings from "./LatestSpendings/LatestSpendings";
 
 export default function Dashboard() {
   return (
-    <>
+    <section className="md:mx-[6.25rem]">
       <h1>Dashboard</h1>
       {/* Spending Summary Graph */}
       <Card className="mb-6">
@@ -18,7 +18,7 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
+      <div className="grid grid-cols-1 md:grid-cols-cst-db gap-20">
         {/* Recent Expenses */}
         <div>
           <MonthlySpendingLimit />
@@ -43,6 +43,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-    </>
+    </section>
   );
 }
