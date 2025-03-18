@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MonthlySpendingLimit from "./MonthlySpendingLimit/MonthlySpendingLimit";
 import TotalBudget from "./TotalBudget/TotalBudget";
+import LatestSpendings from "./LatestSpendings/LatestSpendings";
 
 export default function Dashboard() {
   return (
@@ -22,21 +23,7 @@ export default function Dashboard() {
         <div>
           <MonthlySpendingLimit />
         </div>
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Expenses</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {["Groceries", "Utilities", "Entertainment"].map((expense) => (
-                <li key={expense} className="flex justify-between items-center">
-                  <span>{expense}</span>
-                  <span>$XX.XX</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+        <LatestSpendings />
         {/* Total Savings */}
         <TotalBudget />
         {/* Subscriptions */}
