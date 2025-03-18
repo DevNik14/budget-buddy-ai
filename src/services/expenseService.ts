@@ -62,7 +62,7 @@ export const getExpenses = async (userId: string, type: string, order: Direction
   }
 }
 
-export const getExpensesForTheCurrentMonth = async (userId: string, fromDate: Timestamp) => {
+export const calculateCurrentMonthExpenseTotal = async (userId: string, fromDate: Timestamp) => {
   try {
     const q = query(collection(db, "users", userId as string, "expenses"), where("date", ">=", fromDate))
     const querySnapshot = await getAggregateFromServer(q, {
@@ -80,6 +80,20 @@ export const getRecentExpenses = async (userId: string) => {
     const q = query(collection(db, "users", userId, "expenses"), limit(8))
     const querySnapshot = await getDocs(q);
 
+    if (querySnapshot.docs.length > 0) {
+      return querySnapshot.docs.map(doc => ({ ...doc.data() as Expense, docId: doc.id }))
+    } else {
+      throw new FirebaseError('not-found', "No expenses found!");
+    }
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+}
+
+export const getLastThreeExpenses = async (userId: string) => {
+  try {
+    const q = query(collection(db, "users", userId as string, "expenses"), orderBy("date", "desc"), limit(3))
+    const querySnapshot = await getDocs(q);
     if (querySnapshot.docs.length > 0) {
       return querySnapshot.docs.map(doc => ({ ...doc.data() as Expense, docId: doc.id }))
     } else {

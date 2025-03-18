@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { getMonthlySpendingLimit } from "@/services/budgetOperationsService";
-import { getExpensesForTheCurrentMonth } from "@/services/expenseService";
+import { calculateCurrentMonthExpenseTotal } from "@/services/expenseService";
 import { getFirstDayOfCurrentMonth } from "@/utils/getFirstDayOfCurrentMonth";
 
 import { Progress } from "@/components/ui/progress";
@@ -12,7 +12,7 @@ export default function DisplayMonthlySpendingLimit() {
 
   const { data: currentMonthSpendings } = useQuery({
     queryKey: ["currentMonthSpendings"],
-    queryFn: () => getExpensesForTheCurrentMonth(userId, currentMonthDate),
+    queryFn: () => calculateCurrentMonthExpenseTotal(userId, currentMonthDate),
   });
 
   const { data: monthlySpendingLimit } = useQuery({
