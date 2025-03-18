@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Timestamp } from "firebase/firestore";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getLastThreeExpenses } from "@/services/expenseService";
 import formatDate from "@/utils/formatDate";
 
